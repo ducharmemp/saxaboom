@@ -11,6 +11,7 @@ defmodule Saxaboom.Stack do
     do: %__MODULE__{self | inner: [value | inner]}
 
   def top(%__MODULE__{inner: [head | _]}), do: head
+
   def swap(self, value) do
     {_, self} = __MODULE__.pop(self)
     __MODULE__.push(self, value)

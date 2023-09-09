@@ -54,7 +54,8 @@ defmodule Saxaboom.Mapper do
 
         def __update_field__(mapper, %{kind: :elements} = definition, %Element{} = element) do
           extracted = Access.get(element.attributes, definition.value, element.text)
-          current = Map.get(mapper, definition.field_name) || [] # TODO: This should be defaulted in the defstruct
+          # TODO: This should be defaulted in the defstruct
+          current = Map.get(mapper, definition.field_name) || []
           %{mapper | definition.field_name => [extracted | current]}
         end
 
@@ -63,8 +64,10 @@ defmodule Saxaboom.Mapper do
         end
 
         def __update_field__(mapper, %{kind: :elements} = definition, value) do
-          current = Map.get(mapper, definition.field_name) || [] # TODO: This should be defaulted in the defstruct
-          %{mapper | definition.field_name => [value | current]}  # TODO: Annoying, this is in reverse order of appearance in the doc
+          # TODO: This should be defaulted in the defstruct
+          current = Map.get(mapper, definition.field_name) || []
+          # TODO: Annoying, this is in reverse order of appearance in the doc
+          %{mapper | definition.field_name => [value | current]}
         end
 
         def __cast_element__(
@@ -76,10 +79,10 @@ defmodule Saxaboom.Mapper do
         end
 
         def __cast_nested__(
-          mapper,
-          %Element{name: name, attributes: attributes} = element,
-          nested
-        ) do
+              mapper,
+              %Element{name: name, attributes: attributes} = element,
+              nested
+            ) do
           definition = __element_definition__(mapper, element)
           __update_field__(mapper, definition, nested)
         end
@@ -108,7 +111,8 @@ defmodule Saxaboom.Mapper do
 
   defmacro element(name, opts \\ []) do
     quote location: :keep do
-      {field_name, metadata} = Saxaboom.Mapper.__map_field_info__(unquote(name), unquote(opts), :element)
+      {field_name, metadata} =
+        Saxaboom.Mapper.__map_field_info__(unquote(name), unquote(opts), :element)
 
       Module.put_attribute(__MODULE__, :xml_sax_struct_elements, field_name)
       Module.put_attribute(__MODULE__, :xml_sax_element_metadata, metadata)
@@ -117,7 +121,8 @@ defmodule Saxaboom.Mapper do
 
   defmacro elements(name, opts \\ []) do
     quote location: :keep do
-      {field_name, metadata} = Saxaboom.Mapper.__map_field_info__(unquote(name), unquote(opts), :elements)
+      {field_name, metadata} =
+        Saxaboom.Mapper.__map_field_info__(unquote(name), unquote(opts), :elements)
 
       Module.put_attribute(__MODULE__, :xml_sax_struct_elements, field_name)
       Module.put_attribute(__MODULE__, :xml_sax_element_metadata, metadata)
