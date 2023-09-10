@@ -1,21 +1,26 @@
 defmodule Saxaboom.Stack do
-  defstruct inner: []
+  @compile {:inline, pop: 1}
+  @compile {:inline, push: 2}
+  @compile {:inline, top: 1}
+  @compile {:inline, swap: 2}
 
-  def empty?(%__MODULE__{inner: []}), do: true
-  def empty?(_), do: false
+  def pop([] = self), do: {nil, self}
+  def pop([head | tail]), do: {head, tail}
 
-  def pop(%__MODULE__{inner: []} = self), do: {nil, self}
-  def pop(%__MODULE__{inner: [head | tail]} = self), do: {head, %__MODULE__{self | inner: tail}}
+  def push(self, value),
+    do: [value | self]
 
-  def push(%__MODULE__{inner: inner} = self, value),
-    do: %__MODULE__{self | inner: [value | inner]}
+  def top([head | _]), do: head
 
-  def top(%__MODULE__{inner: [head | _]}), do: head
-
-  def swap(self, value) do
-    {_, self} = __MODULE__.pop(self)
-    __MODULE__.push(self, value)
+  def swap([], value) do
+    [value]
   end
 
-  def size(%__MODULE__{inner: inner}), do: length(inner)
+  def swap([_], value) do
+    [value]
+  end
+
+  def swap([_, tail], value) do
+    [value | tail]
+  end
 end

@@ -17,31 +17,51 @@ defmodule Saxaboom.Mapper do
         unquote(block)
 
         defstruct Enum.reverse(@xml_sax_struct_elements)
+
+        Module.put_attribute(
+          __MODULE__,
+          :xml_grouped_sax_element_metadata,
+          @xml_sax_element_metadata |> Enum.group_by(&Access.get(&1, :element_name))
+        )
+
+        Module.put_attribute(
+          __MODULE__,
+          :xml_sax_keys,
+          @xml_grouped_sax_element_metadata |> Map.keys() |> MapSet.new()
+        )
       end
 
     postlude =
       quote unquote: false do
-        @xml_sax_element_metadata
-        |> Enum.group_by(&Access.get(&1, :element_name))
+        @xml_grouped_sax_element_metadata
         |> Enum.each(fn {element_name, matchers} ->
-          def __element_definition__(
+          def __inner_element_definition__(
                 mapper,
                 %Element{name: unquote(element_name), attributes: attributes} = element
               ) do
-            unquote(Macro.escape(matchers))
+            attribute_keys = Map.keys(attributes) |> MapSet.new()
+
+            Map.get(@xml_grouped_sax_element_metadata, unquote(element_name))
             |> Enum.find(fn maybe_match ->
-              attribute_matches =
-                maybe_match.with
-                |> Enum.map(fn {expected_attribute, expected_value} ->
+              MapSet.subset?(maybe_match.with_keys, attribute_keys) &&
+                Enum.all?(maybe_match.with, fn {expected_attribute, expected_value} ->
                   Access.get(attributes, expected_attribute) == expected_value
                 end)
-
-              Enum.all?([maybe_match.element_name == element.name] ++ attribute_matches)
             end)
           end
         end)
 
-        def __element_definition__(mapper, element), do: nil
+        def __inner_element_definition__(mapper, element), do: nil
+
+        def __maybe_handle__(mapper, %Element{name: name} = element) do
+          MapSet.member?(@xml_sax_keys, name)
+        end
+
+        def __element_definition__(mapper, element) do
+          if __maybe_handle__(mapper, element) do
+            __inner_element_definition__(mapper, element)
+          end
+        end
 
         def __update_field__(mapper, nil, element) do
           mapper
@@ -102,6 +122,7 @@ defmodule Saxaboom.Mapper do
         element_name: to_string(name),
         value: to_string(Access.get(opts, :value)),
         with: Access.get(opts, :with) || [],
+        with_keys: (Access.get(opts, :with) || []) |> Keyword.keys() |> MapSet.new(),
         cast: Access.get(opts, :cast, :string),
         into: Access.get(opts, :into),
         kind: kind

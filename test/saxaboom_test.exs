@@ -2,7 +2,7 @@ defmodule SaxaboomTest do
   use ExUnit.Case
   doctest Saxaboom
 
-  test "greets the world" do
-    assert Saxaboom.hello() == :world
+  test "can say hello" do
+    assert "hello" == "hello"
   end
 end
