@@ -12,7 +12,8 @@ defmodule Saxaboom.StateTest do
       element = %Element{name: "name", attributes: %{}}
       depth = 1
 
-      assert {:noreply, ^handler_stack} = State.handle_cast({:start_element, element, depth}, handler_stack)
+      assert {:noreply, ^handler_stack} =
+               State.handle_cast({:start_element, element, depth}, handler_stack)
     end
 
     test "when a nested handler is necessary it does not reply to the caller and returns an updated handler stack" do
@@ -20,7 +21,8 @@ defmodule Saxaboom.StateTest do
       element = %Element{name: "nested", attributes: %{}}
       depth = 1
 
-      assert {:noreply, [{1, %TestHandler.Nested{}}, {0, %TestHandler{}}]} = State.handle_cast({:start_element, element, depth}, handler_stack)
+      assert {:noreply, [{1, %TestHandler.Nested{}}, {0, %TestHandler{}}]} =
+               State.handle_cast({:start_element, element, depth}, handler_stack)
     end
   end
 
@@ -30,7 +32,8 @@ defmodule Saxaboom.StateTest do
       element = %Element{name: "unknown", attributes: %{}}
       depth = 1
 
-      assert {:noreply, ^handler_stack} = State.handle_cast({:end_element, element, depth}, handler_stack)
+      assert {:noreply, ^handler_stack} =
+               State.handle_cast({:end_element, element, depth}, handler_stack)
     end
 
     test "when terminating a known element, it updates the given handler" do
@@ -38,7 +41,8 @@ defmodule Saxaboom.StateTest do
       element = %Element{name: "name", attributes: %{}, text: "foobar"}
       depth = 1
 
-      assert {:noreply, [{0, %TestHandler{name: "foobar"}}]} = State.handle_cast({:end_element, element, depth}, handler_stack)
+      assert {:noreply, [{0, %TestHandler{name: "foobar"}}]} =
+               State.handle_cast({:end_element, element, depth}, handler_stack)
     end
 
     test "when terminating a nested element, it removes the handler from the stack" do
@@ -46,14 +50,15 @@ defmodule Saxaboom.StateTest do
       element = %Element{name: "nested", attributes: %{}}
       depth = 1
 
-      assert {:noreply, [{0, %TestHandler{}}]} = State.handle_cast({:end_element, element, depth}, handler_stack)
+      assert {:noreply, [{0, %TestHandler{}}]} =
+               State.handle_cast({:end_element, element, depth}, handler_stack)
     end
   end
 
   describe "handle_call/2 :finish" do
     test "replies to the caller and gets the top of the stack" do
       handler_stack = [{0, %TestHandler{}}]
-      assert %TestHandler{} = State.handle_call({:finish}, nil, handler_stack)
+      assert {:reply, %TestHandler{}, []} = State.handle_call({:finish}, nil, handler_stack)
     end
   end
 end

@@ -6,7 +6,8 @@ defmodule Saxaboom.CasterTest do
 
   describe "cast_value/2" do
     test "string casting" do
-      assert Caster.cast_value(:string, "123") == "123" # Noop
+      # Noop
+      assert Caster.cast_value(:string, "123") == "123"
     end
 
     test "integer casting" do
@@ -22,11 +23,14 @@ defmodule Saxaboom.CasterTest do
     end
 
     test "existing atom casting" do
-      assert Caster.cast_value(:existing_atom, "test2") == :test2  # This passes because test2 is already defined
+      # This passes because test2 is already defined
+      assert Caster.cast_value(:existing_atom, "test2") == :test2
     end
 
     test "existing atom casting fails" do
-      assert_raise ArgumentError, ~r"not an already existing atom", fn -> Caster.cast_value(:existing_atom, "test3") end
+      assert_raise ArgumentError, ~r"not an already existing atom", fn ->
+        Caster.cast_value(:existing_atom, "test3")
+      end
     end
 
     test "boolean casting" do

@@ -33,7 +33,9 @@ defmodule SaxaboomTest.MapperTest do
         attributes: %{"href" => "https://some.url"}
       }
 
-      assert TestHandler.__cast_element__(sut, element) == %TestHandler{extracted: "https://some.url"}
+      assert TestHandler.__cast_element__(sut, element) == %TestHandler{
+               extracted: "https://some.url"
+             }
     end
 
     test "it can cast the value of the element to the type specified" do
@@ -45,7 +47,10 @@ defmodule SaxaboomTest.MapperTest do
     test "it can apply a transformative function to the value of the element" do
       sut = %TestHandler{}
       element = %Element{name: "user_cast", text: "spambaz", attributes: %{}}
-      assert TestHandler.__cast_element__(sut, element) == %TestHandler{user_cast: "foobar spambaz"}
+
+      assert TestHandler.__cast_element__(sut, element) == %TestHandler{
+               user_cast: "foobar spambaz"
+             }
     end
 
     test "it applies transformation logic after extracting out the attributes" do
@@ -175,7 +180,9 @@ defmodule SaxaboomTest.MapperTest do
       resolved =
         Enum.reduce(elements, sut, fn element, st -> TestHandler.__cast_element__(st, element) end)
 
-      assert resolved == %TestHandler{attribute_casts: ["whatever fizzbuzz", "whatever otherbizz"]}
+      assert resolved == %TestHandler{
+               attribute_casts: ["whatever fizzbuzz", "whatever otherbizz"]
+             }
     end
   end
 
@@ -191,7 +198,10 @@ defmodule SaxaboomTest.MapperTest do
       sut = %TestHandler{}
       nested = %TestHandler.Nested{}
       element = %Element{name: "other_nested", text: "Some Name", attributes: %{}}
-      assert TestHandler.__cast_nested__(sut, element, nested) == %TestHandler{renamed_nested: nested}
+
+      assert TestHandler.__cast_nested__(sut, element, nested) == %TestHandler{
+               renamed_nested: nested
+             }
     end
 
     test "it can ignore elements that match on the name but don't match an attribute" do
@@ -204,7 +214,9 @@ defmodule SaxaboomTest.MapperTest do
         attributes: %{"kind" => "nottext"}
       }
 
-      assert TestHandler.__cast_nested__(sut, element, nested) == %TestHandler{filtered_nested: nil}
+      assert TestHandler.__cast_nested__(sut, element, nested) == %TestHandler{
+               filtered_nested: nil
+             }
     end
   end
 
