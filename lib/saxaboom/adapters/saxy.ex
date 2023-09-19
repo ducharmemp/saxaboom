@@ -4,38 +4,24 @@ if Code.ensure_loaded?(Saxy) do
     Documentation for `Saxaboom.Adapters.Sax`.
     """
     @behaviour Saxy.Handler
+    @behaviour Saxaboom.Adapters.Adapter
 
+    alias Saxaboom.Adapters.Adapter
     alias Saxaboom.Element
     alias Saxaboom.Stack
     alias Saxaboom.State
 
     def parse(xml, into) when is_binary(xml) do
-      document_element = %Element{name: "document"}
-      element_stack = [] |> Stack.push(document_element)
-      {:ok, machine_state} = State.start_link(struct(into))
-
-      {:ok, _} =
-        Saxy.parse_string(xml, __MODULE__, %{
-          element_stack: element_stack,
-          machine_state: machine_state,
-          depth: 0
-        })
+      {:ok, %{machine_state: machine_state}} =
+        Saxy.parse_string(xml, __MODULE__, Adapter.initialize_state(into))
 
       parsed = State.finish(machine_state)
       {:ok, parsed}
     end
 
     def parse(xml, into) do
-      document_element = %Element{name: "document"}
-      element_stack = [] |> Stack.push(document_element)
-      {:ok, machine_state} = State.start_link(struct(into))
-
-      {:ok, _} =
-        Saxy.parse_stream(xml, __MODULE__, %{
-          element_stack: element_stack,
-          machine_state: machine_state,
-          depth: 0
-        })
+      {:ok, %{machine_state: machine_state}} =
+        Saxy.parse_stream(xml, __MODULE__, Adapter.initialize_state(into))
 
       parsed = State.finish(machine_state)
       {:ok, parsed}

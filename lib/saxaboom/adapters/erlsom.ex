@@ -1,21 +1,18 @@
 if Code.ensure_loaded?(:erlsom) do
   defmodule Saxaboom.Adapters.Erlsom do
-    @behaviour Saxaboom.Adapters.AdapterBehaviour
+    @behaviour Saxaboom.Adapters.Adapter
 
+    alias Saxaboom.Adapters.Adapter
     alias Saxaboom.Element
     alias Saxaboom.Stack
     alias Saxaboom.State
 
     @impl true
-    def parse(xml, into) do
-      document_element = %Element{name: "document"}
-      element_stack = [] |> Stack.push(document_element)
-      {:ok, machine_state} = State.start_link(struct(into))
-
-      {:ok, _, _} =
+    def parse(xml, into) when is_binary(xml) do
+      {:ok, %{machine_state: machine_state}, _} =
         :erlsom.parse_sax(
           xml,
-          %{element_stack: element_stack, machine_state: machine_state, depth: 0},
+          Adapter.initialize_state(into),
           &handle_event/2
         )
 
@@ -33,7 +30,7 @@ if Code.ensure_loaded?(:erlsom) do
       :ok = State.start_element(machine_state, current_element, depth)
 
       element_stack = Stack.push(element_stack, current_element)
-      {:ok, %{state | element_stack: element_stack, depth: depth + 1}}
+      %{state | element_stack: element_stack, depth: depth + 1}
     end
 
     def handle_event(
@@ -45,7 +42,7 @@ if Code.ensure_loaded?(:erlsom) do
 
       :ok = State.end_element(machine_state, current_element, depth)
 
-      {:ok, %{state | element_stack: element_stack, depth: depth}}
+      %{state | element_stack: element_stack, depth: depth}
     end
 
     def handle_event(
@@ -54,16 +51,15 @@ if Code.ensure_loaded?(:erlsom) do
         ) do
       {current, element_stack} = Stack.pop(element_stack)
       current = %Element{current | text: to_string(characters)}
-      {:ok, %{state | element_stack: Stack.push(element_stack, current)}}
+      %{state | element_stack: Stack.push(element_stack, current)}
     end
 
-    def handle_event(_event, state), do: {:ok, state}
+    def handle_event(_event, state), do: state
 
     def normalize_attributes(attributes) do
       attributes
-      |> Enum.map(fn {_uri, _prefix, attribute_name, value} -> {attribute_name, value} end)
+      |> Enum.map(fn {_kind, attribute_name, _, _, value} -> {attribute_name, value} end)
       |> Enum.into(%{})
     end
   end
-
 end

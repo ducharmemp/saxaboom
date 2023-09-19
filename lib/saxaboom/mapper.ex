@@ -7,12 +7,13 @@ defmodule Saxaboom.Mapper do
 
   defmacro document(do: block) do
     prelude =
-      quote location: :keep do
+      quote do
         Module.register_attribute(__MODULE__, :xml_sax_struct_elements, accumulate: true)
         Module.register_attribute(__MODULE__, :xml_sax_element_metadata, accumulate: true)
 
         import Saxaboom.Mapper
         alias Saxaboom.Element
+        alias Saxaboom.Caster
 
         unquote(block)
 
@@ -67,16 +68,25 @@ defmodule Saxaboom.Mapper do
           mapper
         end
 
-        def __update_field__(mapper, %{kind: :element} = definition, %Element{} = element) do
+        def __update_field__(
+              mapper,
+              %{kind: :element, cast: cast_type} = definition,
+              %Element{} = element
+            ) do
           extracted = Access.get(element.attributes, definition.value, element.text)
-          %{mapper | definition.field_name => extracted}
+          cast = Caster.cast_value(cast_type, extracted)
+          %{mapper | definition.field_name => cast}
         end
 
-        def __update_field__(mapper, %{kind: :elements} = definition, %Element{} = element) do
+        def __update_field__(
+              mapper,
+              %{kind: :elements, cast: cast_type} = definition,
+              %Element{} = element
+            ) do
           extracted = Access.get(element.attributes, definition.value, element.text)
-          # TODO: This should be defaulted in the defstruct
+          cast = Caster.cast_value(cast_type, extracted)
           current = Map.get(mapper, definition.field_name) || []
-          %{mapper | definition.field_name => [extracted | current]}
+          %{mapper | definition.field_name => current ++ [cast]}
         end
 
         def __update_field__(mapper, %{kind: :element} = definition, value) do
@@ -84,10 +94,8 @@ defmodule Saxaboom.Mapper do
         end
 
         def __update_field__(mapper, %{kind: :elements} = definition, value) do
-          # TODO: This should be defaulted in the defstruct
           current = Map.get(mapper, definition.field_name) || []
-          # TODO: Annoying, this is in reverse order of appearance in the doc
-          %{mapper | definition.field_name => [value | current]}
+          %{mapper | definition.field_name => current ++ [value]}
         end
 
         def __cast_element__(
@@ -120,9 +128,20 @@ defmodule Saxaboom.Mapper do
       %{
         field_name: Access.get(opts, :as, name),
         element_name: to_string(name),
-        value: to_string(Access.get(opts, :value)),
-        with: Access.get(opts, :with) || [],
-        with_keys: (Access.get(opts, :with) || []) |> Keyword.keys() |> MapSet.new(),
+        value:
+          case Access.get(opts, :value) do
+            nil -> nil
+            value -> to_string(value)
+          end,
+        with:
+          (Access.get(opts, :with) || [])
+          |> Enum.into(%{})
+          |> Map.new(fn {key, value} -> {to_string(key), value} end),
+        with_keys:
+          (Access.get(opts, :with) || [])
+          |> Keyword.keys()
+          |> Enum.map(&to_string/1)
+          |> MapSet.new(),
         cast: Access.get(opts, :cast, :string),
         into: Access.get(opts, :into),
         kind: kind
@@ -131,7 +150,7 @@ defmodule Saxaboom.Mapper do
   end
 
   defmacro element(name, opts \\ []) do
-    quote location: :keep do
+    quote do
       {field_name, metadata} =
         Saxaboom.Mapper.__map_field_info__(unquote(name), unquote(opts), :element)
 
@@ -141,7 +160,7 @@ defmodule Saxaboom.Mapper do
   end
 
   defmacro elements(name, opts \\ []) do
-    quote location: :keep do
+    quote do
       {field_name, metadata} =
         Saxaboom.Mapper.__map_field_info__(unquote(name), unquote(opts), :elements)
 

@@ -10,6 +10,7 @@ defmodule Saxaboom.Stack do
   def push(self, value),
     do: [value | self]
 
+  def top([]), do: nil
   def top([head | _]), do: head
 
   def swap([], value) do
@@ -20,7 +21,7 @@ defmodule Saxaboom.Stack do
     [value]
   end
 
-  def swap([_, tail], value) do
+  def swap([_ | tail], value) do
     [value | tail]
   end
 end
