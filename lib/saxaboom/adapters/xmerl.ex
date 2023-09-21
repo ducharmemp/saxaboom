@@ -20,12 +20,13 @@ defmodule Saxaboom.Adapters.Xmerl do
   end
 
   def handle_event(
-        {:startElement, _uri, local_name, _qualified_name, attributes},
+        {:startElement, _uri, _local_name, {prefix, name}, attributes},
         _location,
         %{element_stack: element_stack, machine_state: machine_state, depth: depth} = state
       ) do
+    name = Enum.join([prefix, name] |> Enum.reject(fn val -> val == ~c"" end), ":")
     attributes = normalize_attributes(attributes)
-    current_element = %Element{name: local_name, attributes: attributes}
+    current_element = %Element{name: name, attributes: attributes}
 
     :ok = State.start_element(machine_state, current_element, depth)
 
@@ -60,7 +61,9 @@ defmodule Saxaboom.Adapters.Xmerl do
 
   def normalize_attributes(attributes) do
     attributes
-    |> Enum.map(fn {_uri, _prefix, attribute_name, value} -> {attribute_name, value} end)
+    |> Enum.map(fn {_uri, _prefix, attribute_name, value} ->
+      {to_string(attribute_name), to_string(value)}
+    end)
     |> Enum.into(%{})
   end
 end

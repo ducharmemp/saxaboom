@@ -17,7 +17,7 @@ defmodule Saxaboom.Mapper do
 
         unquote(block)
 
-        defstruct Enum.reverse(@xml_sax_struct_elements)
+        defstruct Enum.uniq(Enum.reverse(@xml_sax_struct_elements))
 
         Module.put_attribute(
           __MODULE__,

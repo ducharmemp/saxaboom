@@ -1,5 +1,5 @@
 defmodule Saxaboom.CasterTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   doctest Saxaboom.Caster
 
   alias Saxaboom.Caster

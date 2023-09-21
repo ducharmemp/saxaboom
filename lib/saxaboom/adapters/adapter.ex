@@ -8,7 +8,7 @@ defmodule Saxaboom.Adapters.Adapter do
   def initialize_state(into) do
     document_element = %Element{name: "document"}
     element_stack = [] |> Stack.push(document_element)
-    {:ok, machine_state} = State.start_link(struct(into))
+    {:ok, machine_state} = State.start_link(into)
 
     %{element_stack: element_stack, machine_state: machine_state, depth: 0}
   end

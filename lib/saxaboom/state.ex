@@ -35,7 +35,7 @@ defmodule Saxaboom.State do
 
     handler_stack =
       if handler_definition && handler_definition.into do
-        Stack.push(handler_stack, {depth, struct(handler_definition.into)})
+        Stack.push(handler_stack, {depth, handler_definition.into})
       else
         handler_stack
       end

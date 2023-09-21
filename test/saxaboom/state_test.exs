@@ -1,5 +1,5 @@
 defmodule Saxaboom.StateTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   doctest Saxaboom.State
 
   alias Saxaboom.State
@@ -21,7 +21,7 @@ defmodule Saxaboom.StateTest do
       element = %Element{name: "nested", attributes: %{}}
       depth = 1
 
-      assert {:noreply, [{1, %TestHandler.Nested{}}, {0, %TestHandler{}}]} =
+      assert {:noreply, [{1, %Support.Nested{}}, {0, %TestHandler{}}]} =
                State.handle_cast({:start_element, element, depth}, handler_stack)
     end
   end
@@ -46,7 +46,7 @@ defmodule Saxaboom.StateTest do
     end
 
     test "when terminating a nested element, it removes the handler from the stack" do
-      handler_stack = [{1, %TestHandler.Nested{}}, {0, %TestHandler{}}]
+      handler_stack = [{1, %Support.Nested{}}, {0, %TestHandler{}}]
       element = %Element{name: "nested", attributes: %{}}
       depth = 1
 

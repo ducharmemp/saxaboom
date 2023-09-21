@@ -1,13 +1,15 @@
+defmodule Support.Nested do
+  use Saxaboom.Mapper
+
+  document do
+    element :id
+  end
+end
+
 defmodule Support.TestHandler do
   use Saxaboom.Mapper
 
-  defmodule Nested do
-    use Saxaboom.Mapper
-
-    document do
-      element :id
-    end
-  end
+  alias Support.Nested
 
   document do
     element :name
@@ -30,13 +32,13 @@ defmodule Support.TestHandler do
       value: :kind,
       cast: &__MODULE__.add_whatever/1
 
-    element :nested, into: Nested
-    element :other_nested, as: :renamed_nested, into: Nested
-    element :filtered_nested, into: Nested, with: [kind: "text"]
+    element :nested, into: %Nested{}
+    element :other_nested, as: :renamed_nested, into: %Nested{}
+    element :filtered_nested, into: %Nested{}, with: [kind: "text"]
 
-    elements :nested_item, as: :nesteds, into: Nested
-    elements :other_nested_item, as: :renamed_nesteds, into: Nested
-    elements :filtered_nested_item, as: :filtered_nesteds, into: Nested, with: [kind: "text"]
+    elements :nested_item, as: :nesteds, into: %Nested{}
+    elements :other_nested_item, as: :renamed_nesteds, into: %Nested{}
+    elements :filtered_nested_item, as: :filtered_nesteds, into: %Nested{}, with: [kind: "text"]
   end
 
   def add_foobar(value) do

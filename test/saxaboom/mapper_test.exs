@@ -1,5 +1,5 @@
 defmodule SaxaboomTest.MapperTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   doctest Saxaboom.Mapper
 
   alias Saxaboom.Element
@@ -189,14 +189,14 @@ defmodule SaxaboomTest.MapperTest do
   describe "single __cast_nested__/3" do
     test "it updates the correct field" do
       sut = %TestHandler{}
-      nested = %TestHandler.Nested{}
+      nested = %Support.Nested{}
       element = %Element{name: "nested", text: "Some Name", attributes: %{}}
       assert TestHandler.__cast_nested__(sut, element, nested) == %TestHandler{nested: nested}
     end
 
     test "allows for renaming a field" do
       sut = %TestHandler{}
-      nested = %TestHandler.Nested{}
+      nested = %Support.Nested{}
       element = %Element{name: "other_nested", text: "Some Name", attributes: %{}}
 
       assert TestHandler.__cast_nested__(sut, element, nested) == %TestHandler{
@@ -206,7 +206,7 @@ defmodule SaxaboomTest.MapperTest do
 
     test "it can ignore elements that match on the name but don't match an attribute" do
       sut = %TestHandler{}
-      nested = %TestHandler.Nested{}
+      nested = %Support.Nested{}
 
       element = %Element{
         name: "filtered_nested",
@@ -223,8 +223,8 @@ defmodule SaxaboomTest.MapperTest do
   describe "multiple __cast_nested__/3" do
     test "it updates the correct field" do
       sut = %TestHandler{}
-      nested1 = %TestHandler.Nested{id: 1}
-      nested2 = %TestHandler.Nested{id: 2}
+      nested1 = %Support.Nested{id: 1}
+      nested2 = %Support.Nested{id: 2}
 
       elements = [
         {%Element{name: "nested_item", text: "Some Name", attributes: %{}}, nested1},
@@ -241,8 +241,8 @@ defmodule SaxaboomTest.MapperTest do
 
     test "allows for renaming a field" do
       sut = %TestHandler{}
-      nested1 = %TestHandler.Nested{id: 1}
-      nested2 = %TestHandler.Nested{id: 2}
+      nested1 = %Support.Nested{id: 1}
+      nested2 = %Support.Nested{id: 2}
 
       elements = [
         {%Element{name: "other_nested_item", text: "Some Name", attributes: %{}}, nested1},
@@ -259,8 +259,8 @@ defmodule SaxaboomTest.MapperTest do
 
     test "it ignores items that don't match the specified filter" do
       sut = %TestHandler{}
-      nested1 = %TestHandler.Nested{id: 1}
-      nested2 = %TestHandler.Nested{id: 2}
+      nested1 = %Support.Nested{id: 1}
+      nested2 = %Support.Nested{id: 2}
 
       elements = [
         {%Element{

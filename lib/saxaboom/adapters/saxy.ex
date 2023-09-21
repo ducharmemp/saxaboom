@@ -60,6 +60,12 @@ if Code.ensure_loaded?(Saxy) do
       {:ok, %{state | element_stack: Stack.push(element_stack, current)}}
     end
 
+    def handle_event(:cdata, characters, %{element_stack: element_stack} = state) do
+      {current, element_stack} = Stack.pop(element_stack)
+      current = %Element{current | text: to_string(characters)}
+      {:ok, %{state | element_stack: Stack.push(element_stack, current)}}
+    end
+
     def handle_event(_event, _arg, state), do: {:ok, state}
 
     def normalize_attributes(attributes) do
