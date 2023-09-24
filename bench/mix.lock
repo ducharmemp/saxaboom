@@ -5,6 +5,7 @@
   "combine": {:hex, :combine, "0.10.0", "eff8224eeb56498a2af13011d142c5e7997a80c8f5b97c499f84c841032e429f", [:mix], [], "hexpm", "1b1dbc1790073076580d0d1d64e42eae2366583e7aecd455d1215b0d16f2451b"},
   "deep_merge": {:hex, :deep_merge, "1.0.0", "b4aa1a0d1acac393bdf38b2291af38cb1d4a52806cf7a4906f718e1feb5ee961", [:mix], [], "hexpm", "ce708e5f094b9cd4e8f2be4f00d2f4250c4095be93f8cd6d018c753894885430"},
   "elixir_feed_parser": {:hex, :elixir_feed_parser, "0.0.1", "20bfddc342c401429b3910acbfd9f075037d204b6d82a467292d7fce55c8e76b", [:mix], [], "hexpm", "fce7c9851dcdc479427007cc50e418b6d5dd82abb0c941490c5928e4e5b99f28"},
+  "erlsom": {:hex, :erlsom, "1.5.1", "c8fe2babd33ff0846403f6522328b8ab676f896b793634cfe7ef181c05316c03", [:rebar3], [], "hexpm", "7965485494c5844dd127656ac40f141aadfa174839ec1be1074e7edf5b4239eb"},
   "expo": {:hex, :expo, "0.4.1", "1c61d18a5df197dfda38861673d392e642649a9cef7694d2f97a587b2cfb319b", [:mix], [], "hexpm", "2ff7ba7a798c8c543c12550fa0e2cbc81b95d4974c65855d8d15ba7b37a1ce47"},
   "feeder": {:hex, :feeder, "2.3.2", "18792e18ae2928885e1859ecfbac6fc7a2ec6e99efa51828160e530b2a188c8b", [:make], [], "hexpm", "e176f1e486a4498ae0e235fb5d254082272d52e5f9bd825c469f1dcddf21edd4"},
   "feeder_ex": {:hex, :feeder_ex, "1.1.0", "0be3732255cdb45dec949e0ede6852b5261c9ff173360e8274a6ac65183b2b55", [:mix], [{:feeder, "~> 2.2", [hex: :feeder, repo: "hexpm", optional: false]}], "hexpm", "3d06dfcc3e13a2fb66182dffc16e112b0ef9aea432a949f48b56c667ac09d07e"},

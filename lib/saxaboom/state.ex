@@ -1,6 +1,7 @@
 defmodule Saxaboom.State do
   use GenServer
 
+  alias Saxaboom.ElementCollectable
   alias Saxaboom.Stack
 
   def start_link(initial_handler) do
@@ -30,8 +31,7 @@ defmodule Saxaboom.State do
   def handle_cast({:start_element, element, depth}, handler_stack) do
     {_, current_handler} = Stack.top(handler_stack)
 
-    handler_definition =
-      current_handler.__struct__.__element_definition__(current_handler, element)
+    handler_definition = ElementCollectable.element_definition(current_handler, element)
 
     handler_stack =
       if handler_definition && handler_definition.into do
@@ -47,7 +47,7 @@ defmodule Saxaboom.State do
   def handle_cast({:end_element, element, depth}, handler_stack) do
     {handler_info, handler_stack} = Stack.pop(handler_stack)
     {introduced_depth, current_handler} = handler_info
-    current_handler = current_handler.__struct__.__cast_element__(current_handler, element)
+    current_handler = ElementCollectable.cast_element(current_handler, element)
 
     handler_stack = Stack.push(handler_stack, {introduced_depth, current_handler})
 
@@ -56,12 +56,7 @@ defmodule Saxaboom.State do
         {{_, parsed_handler}, handler_stack} = Stack.pop(handler_stack)
         {parent_depth, parent_handler} = Stack.top(handler_stack)
 
-        parent_handler =
-          parent_handler.__struct__.__cast_nested__(
-            parent_handler,
-            element,
-            parsed_handler
-          )
+        parent_handler = ElementCollectable.cast_nested(parent_handler, element, parsed_handler)
 
         Stack.swap(handler_stack, {parent_depth, parent_handler})
       else

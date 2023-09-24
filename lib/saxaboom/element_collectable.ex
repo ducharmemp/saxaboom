@@ -5,11 +5,7 @@ defprotocol Saxaboom.ElementCollectable do
 end
 
 defimpl Saxaboom.ElementCollectable, for: List do
-  def element_definition(collectable, element), do: true
-  def cast_element(collectable, element), do: collectable
-end
-
-defimpl Saxaboom.ElementCollectable, for: Map do
-  def element_definition(collectable, element), do: true
-  def cast_element(collectable, element), do: collectable
+  def element_definition(_collectable, _element), do: %{into: []}
+  def cast_element(collectable, element), do: [element | collectable]
+  def cast_nested(collectable, _element, nested), do: [nested | collectable]
 end

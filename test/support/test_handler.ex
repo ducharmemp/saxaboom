@@ -19,6 +19,7 @@ defmodule Support.TestHandler do
     element :cast, cast: :float
     element :user_cast, cast: &__MODULE__.add_foobar/1
     element :attribute_cast, value: :kind, cast: &__MODULE__.add_whatever/1
+    element :"some:prefixed", as: :prefixed
 
     elements :name_item, as: :names
     elements :other_item, as: :renames
@@ -26,6 +27,7 @@ defmodule Support.TestHandler do
     elements :extracted_item, as: :extracts, value: :href
     elements :cast_item, as: :casts, cast: :float
     elements :user_cast_item, as: :user_casts, cast: &__MODULE__.add_foobar/1
+    elements :"some:prefixeditem", as: :prefixed_items
 
     elements :attribute_cast_item,
       as: :attribute_casts,

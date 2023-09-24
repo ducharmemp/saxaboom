@@ -1,16 +1,34 @@
 defmodule Support.AtomEntry do
   use Saxaboom.Mapper
 
+  alias Saxaboom.Element
+
+  import Saxy.XML
+
   document do
-    element :title, as: :raw_title, with: [type: "html"]
-    element :title, as: :raw_title, with: [type: "xhtml"]
-    element :title, as: :raw_title, with: [type: "xml"]
-    element :title, as: :title, with: [type: "text"]
-    element :title, as: :title, with: [type: nil]
-    element :title, as: :title_type, value: :type
+    element :title,
+      as: :title,
+      with: [type: "html"],
+      into: [],
+      cast: &__MODULE__.serialize_to_string/1
+
+    element :title,
+      as: :title,
+      with: [type: "xhtml"],
+      into: [],
+      cast: &__MODULE__.serialize_to_string/1
+
+    element :title,
+      as: :title,
+      with: [type: "xml"],
+      into: [],
+      cast: &__MODULE__.serialize_to_string/1
+
+    element :title, as: :title
+    # element :title, as: :title_type, value: :type
 
     element :name, as: :author
-    element :content
+    element :content, with: [type: "xhtml"], into: [], cast: &__MODULE__.serialize_to_string/1
     element :summary
     element :enclosure, as: :image, value: :href
 
@@ -29,6 +47,18 @@ defmodule Support.AtomEntry do
 
     element :"media:thumbnail", as: :image, value: :url
     element :"media:content", as: :image, value: :url
+  end
+
+  defp recurse_build([%Element{name: name, attributes: attributes, text: text}]) do
+    element(name, Enum.to_list(attributes), text)
+  end
+
+  defp recurse_build([%Element{name: name, attributes: attributes} | children]) do
+    element(name, Enum.to_list(attributes), children |> Enum.map(&recurse_build/1))
+  end
+
+  def serialize_to_string([_wrapper_element | tree]) do
+    Saxy.encode!(recurse_build(Enum.at(tree, 0)))
   end
 end
 

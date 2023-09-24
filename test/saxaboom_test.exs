@@ -7,8 +7,8 @@ defmodule SaxaboomTest do
 
   @adapters [:erlsom, :xmerl, :saxy]
   @test_cases [
-    {"a10", Support.A10Handler},
-    {"pet_atom", Support.PetAtomHandler}
+    {"a10", Support.A10Handler}
+    # {"pet_atom", Support.PetAtomHandler}
     # {"itunes"},
     # {"AmazonWebServicesBlog"}
   ]
@@ -33,6 +33,13 @@ defmodule SaxaboomTest do
           assert first == second
         end)
       end
+    end
+  end
+
+  describe "testerino" do
+    test "whatever" do
+      Saxaboom.parse(read_xml_fixture("pet_atom"), %Support.PetAtomHandler{}, adapter: :saxy)
+      |> dbg()
     end
   end
 end

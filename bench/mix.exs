@@ -27,7 +27,8 @@ defmodule Bench.MixProject do
       {:feedraptor, "~> 0.3.0"},
       {:feeder_ex, "~> 1.1"},
       {:saxaboom, path: "../", override: true},
-      {:saxy, "~> 1.5"}
+      {:saxy, "~> 1.5"},
+      {:erlsom, "~> 1.5", override: true}
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
     ]

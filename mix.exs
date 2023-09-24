@@ -7,7 +7,15 @@ defmodule Saxaboom.MixProject do
       version: "0.1.0",
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      elixirc_paths: elixirc_paths(Mix.env()),
+      test_coverage: [
+        ignore_modules: [
+          ~r/\.?Support\./,
+          # This is tested indirectly by using the macros
+          Saxaboom.Mapper
+        ]
+      ]
     ]
   end
 
@@ -26,4 +34,7 @@ defmodule Saxaboom.MixProject do
       {:saxy, "~> 1.5", optional: true}
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 end
