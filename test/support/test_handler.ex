@@ -20,6 +20,9 @@ defmodule Support.TestHandler do
     element :user_cast, cast: &__MODULE__.add_foobar/1
     element :attribute_cast, value: :kind, cast: &__MODULE__.add_whatever/1
     element :"some:prefixed", as: :prefixed
+    element :precedence, as: :shouldbeset, with: [some: "attribute", kind: "priority"]
+    element :precedence, as: :shouldnotbeset, with: [some: "attribute"]
+    element :precedence
 
     elements :name_item, as: :names
     elements :other_item, as: :renames
@@ -28,6 +31,9 @@ defmodule Support.TestHandler do
     elements :cast_item, as: :casts, cast: :float
     elements :user_cast_item, as: :user_casts, cast: &__MODULE__.add_foobar/1
     elements :"some:prefixeditem", as: :prefixed_items
+    elements :precedence_item, as: :shouldbeset_list, with: [some: "attribute", kind: "priority"]
+    elements :precedence_item, as: :shouldnotbeset_list, with: [some: "attribute"]
+    elements :precedence_item
 
     elements :attribute_cast_item,
       as: :attribute_casts,

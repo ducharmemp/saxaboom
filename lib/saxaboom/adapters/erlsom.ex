@@ -8,12 +8,37 @@ if Code.ensure_loaded?(:erlsom) do
     alias Saxaboom.State
 
     @impl true
-    def parse(xml, into) when is_binary(xml) do
+    def parse(xml, into, adapter_options) when is_binary(xml) do
       {:ok, %{machine_state: machine_state}, _} =
         :erlsom.parse_sax(
           xml,
           Adapter.initialize_state(into),
-          &handle_event/2
+          &handle_event/2,
+          adapter_options
+        )
+
+      parsed = State.finish(machine_state)
+      {:ok, parsed}
+    end
+
+    @impl true
+    def parse(xml, into, adapter_options) do
+      {:ok, %{machine_state: machine_state}, _} =
+        :erlsom.parse_sax(
+          "",
+          Adapter.initialize_state(into),
+          &handle_event/2,
+          adapter_options ++
+            [
+              {
+                :continuation_function,
+                fn tail, stream ->
+                  {lines, stream} = StreamSplit.take_and_drop(stream, 1)
+                  {tail <> Enum.join(lines, ""), stream}
+                end,
+                xml
+              }
+            ]
         )
 
       parsed = State.finish(machine_state)
@@ -59,8 +84,9 @@ if Code.ensure_loaded?(:erlsom) do
 
     def normalize_attributes(attributes) do
       attributes
-      |> Enum.map(fn {_kind, attribute_name, _, _, value} ->
-        {to_string(attribute_name), to_string(value)}
+      |> Enum.map(fn {_kind, name, prefix, _, value} ->
+        {Enum.join([prefix, name] |> Enum.reject(fn val -> val == ~c"" end), ":"),
+         to_string(value)}
       end)
       |> Enum.into(%{})
     end

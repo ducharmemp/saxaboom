@@ -31,7 +31,8 @@ defmodule Saxaboom.MixProject do
     [
       {:erlsom, "~> 1.5", optional: true},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:saxy, "~> 1.5", optional: true}
+      {:saxy, "~> 1.5", optional: true},
+      {:stream_split, "~> 0.1.7"}
     ]
   end
 

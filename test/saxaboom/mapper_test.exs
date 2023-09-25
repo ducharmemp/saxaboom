@@ -2,8 +2,8 @@ defmodule SaxaboomTest.MapperTest do
   use ExUnit.Case, async: true
   doctest Saxaboom.Mapper
 
-  alias Saxaboom.ElementCollectable
   alias Saxaboom.Element
+  alias Saxaboom.ElementCollectable
   alias Support.TestHandler
 
   describe "single cast_element/2" do
@@ -75,7 +75,19 @@ defmodule SaxaboomTest.MapperTest do
     end
 
     test "elements with more specificity will take precedence over elements with less specificity" do
-      assert 1 = 2
+      sut = %TestHandler{}
+
+      element = %Element{
+        name: "precedence",
+        text: "spambaz",
+        attributes: %{"some" => "attribute", "kind" => "priority"}
+      }
+
+      assert ElementCollectable.cast_element(sut, element) == %TestHandler{
+               shouldbeset: "spambaz",
+               shouldnotbeset: nil,
+               precedence: nil
+             }
     end
   end
 
@@ -227,7 +239,31 @@ defmodule SaxaboomTest.MapperTest do
     end
 
     test "elements with more specificity will take precedence over elements with less specificity" do
-      assert 1 = 2
+      sut = %TestHandler{}
+
+      elements = [
+        %Element{
+          name: "precedence_item",
+          text: "Some Name",
+          attributes: %{"some" => "attribute", "kind" => "priority"}
+        },
+        %Element{
+          name: "precedence_item",
+          text: "Other Name",
+          attributes: %{"other" => "attribute"}
+        }
+      ]
+
+      resolved =
+        Enum.reduce(elements, sut, fn element, st ->
+          ElementCollectable.cast_element(st, element)
+        end)
+
+      assert resolved == %TestHandler{
+               shouldbeset_list: ["Some Name"],
+               shouldnotbeset_list: nil,
+               precedence_item: ["Other Name"]
+             }
     end
   end
 

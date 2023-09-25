@@ -7,12 +7,36 @@ defmodule Saxaboom.Adapters.Xmerl do
   alias Saxaboom.State
 
   @impl true
-  def parse(xml, into) when is_binary(xml) when is_binary(xml) do
+  def parse(xml, into, adapter_options) when is_binary(xml) do
     {:ok, %{machine_state: machine_state}, _} =
       :xmerl_sax_parser.stream(
         xml,
-        event_fun: &handle_event/3,
-        event_state: Adapter.initialize_state(into)
+        adapter_options ++
+          [
+            event_fun: &handle_event/3,
+            event_state: Adapter.initialize_state(into)
+          ]
+      )
+
+    parsed = State.finish(machine_state)
+    {:ok, parsed}
+  end
+
+  @impl true
+  def parse(xml, into, adapter_options) do
+    {:ok, %{machine_state: machine_state}, _} =
+      :xmerl_sax_parser.stream(
+        "",
+        adapter_options ++
+          [
+            event_fun: &handle_event/3,
+            event_state: Adapter.initialize_state(into),
+            continuation_state: xml,
+            continuation_fun: fn stream ->
+              {lines, stream} = StreamSplit.take_and_drop(stream, 1)
+              {Enum.join(lines, ""), stream}
+            end
+          ]
       )
 
     parsed = State.finish(machine_state)
@@ -61,8 +85,8 @@ defmodule Saxaboom.Adapters.Xmerl do
 
   def normalize_attributes(attributes) do
     attributes
-    |> Enum.map(fn {_uri, _prefix, attribute_name, value} ->
-      {to_string(attribute_name), to_string(value)}
+    |> Enum.map(fn {_uri, prefix, name, value} ->
+      {Enum.join([prefix, name] |> Enum.reject(fn val -> val == ~c"" end), ":"), to_string(value)}
     end)
     |> Enum.into(%{})
   end

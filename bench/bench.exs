@@ -14,23 +14,29 @@ defmodule Benchmark do
       |> Path.expand(__DIR__)
       |> File.read!()
 
-      {name, content}
+      {"#{name}_read", content}
+    end)
+
+    streams = Map.new(data, fn name ->
+      content = "data/#{name}.rss"
+      |> Path.expand(__DIR__)
+      |> File.stream!()
+
+      {"#{name}_stream", content}
     end)
 
 
     bechmark = %{
-      "gluttony" => &Gluttony.parse_string/1,
-      # "feed_raptor" => &Feedraptor.parse/1,
-      # "feeder_ex" => &FeederEx.parse/1,
       "saxaboom saxy" => &Saxaboom.parse(&1, %ITunesRSS{}, adapter: :saxy),
       "saxaboom xmerl" => &Saxaboom.parse(&1, %ITunesRSS{}, adapter: :xmerl),
+      "saxaboom erlsom" => &Saxaboom.parse(&1, %ITunesRSS{}, adapter: :erlsom),
     }
 
     Benchee.run(bechmark,
       warmup: 5,
       time: 30,
       memory_time: 1,
-      inputs: files,
+      inputs: Map.merge(files, streams),
       formatters: [
         Benchee.Formatters.Console
       ],

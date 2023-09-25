@@ -2,8 +2,8 @@ defmodule Saxaboom.StateTest do
   use ExUnit.Case, async: true
   doctest Saxaboom.State
 
-  alias Saxaboom.State
   alias Saxaboom.Element
+  alias Saxaboom.State
   alias Support.TestHandler
 
   describe "handle_cast/2 :start_element" do
