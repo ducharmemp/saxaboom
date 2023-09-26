@@ -18,7 +18,7 @@ defmodule Saxaboom do
 
   if Code.ensure_loaded?(Saxy) do
     defp parse_saxy(xml, into, parser_options) do
-        Adapters.Saxy.parse(xml, into, parser_options)
+      Adapters.Saxy.parse(xml, into, parser_options)
     end
   else
     defp parse_saxy(_xml, _into, _parser_options) do
@@ -32,7 +32,7 @@ defmodule Saxaboom do
 
   if Code.ensure_loaded?(:erlsom) do
     defp parse_erlsom(xml, into, parser_options) do
-        Adapters.Saxy.parse(xml, into, parser_options)
+      Adapters.Saxy.parse(xml, into, parser_options)
     end
   else
     defp parse_erlsom(_xml, _into, _parser_options) do
