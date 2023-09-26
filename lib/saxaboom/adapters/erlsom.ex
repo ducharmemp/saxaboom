@@ -1,5 +1,7 @@
 if Code.ensure_loaded?(:erlsom) do
   defmodule Saxaboom.Adapters.Erlsom do
+    @moduledoc false
+
     @behaviour Saxaboom.Adapters.Adapter
 
     alias Saxaboom.Adapters.Adapter
@@ -8,13 +10,13 @@ if Code.ensure_loaded?(:erlsom) do
     alias Saxaboom.State
 
     @impl true
-    def parse(xml, into, adapter_options) when is_binary(xml) do
+    def parse(xml, into, parser_options) when is_binary(xml) do
       {:ok, %{machine_state: machine_state}, _} =
         :erlsom.parse_sax(
           xml,
           Adapter.initialize_state(into),
           &handle_event/2,
-          adapter_options
+          parser_options
         )
 
       parsed = State.finish(machine_state)
@@ -22,13 +24,13 @@ if Code.ensure_loaded?(:erlsom) do
     end
 
     @impl true
-    def parse(xml, into, adapter_options) do
+    def parse(xml, into, parser_options) do
       {:ok, %{machine_state: machine_state}, _} =
         :erlsom.parse_sax(
           "",
           Adapter.initialize_state(into),
           &handle_event/2,
-          adapter_options ++
+          parser_options ++
             [
               {
                 :continuation_function,

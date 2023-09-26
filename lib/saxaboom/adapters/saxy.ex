@@ -1,8 +1,7 @@
 if Code.ensure_loaded?(Saxy) do
   defmodule Saxaboom.Adapters.Saxy do
-    @moduledoc """
-    Documentation for `Saxaboom.Adapters.Sax`.
-    """
+    @moduledoc false
+
     @behaviour Saxy.Handler
     @behaviour Saxaboom.Adapters.Adapter
 
@@ -11,17 +10,17 @@ if Code.ensure_loaded?(Saxy) do
     alias Saxaboom.Stack
     alias Saxaboom.State
 
-    def parse(xml, into, adapter_options) when is_binary(xml) do
+    def parse(xml, into, parser_options) when is_binary(xml) do
       {:ok, %{machine_state: machine_state}} =
-        Saxy.parse_string(xml, __MODULE__, Adapter.initialize_state(into), adapter_options)
+        Saxy.parse_string(xml, __MODULE__, Adapter.initialize_state(into), parser_options)
 
       parsed = State.finish(machine_state)
       {:ok, parsed}
     end
 
-    def parse(xml, into, adapter_options) do
+    def parse(xml, into, parser_options) do
       {:ok, %{machine_state: machine_state}} =
-        Saxy.parse_stream(xml, __MODULE__, Adapter.initialize_state(into), adapter_options)
+        Saxy.parse_stream(xml, __MODULE__, Adapter.initialize_state(into), parser_options)
 
       parsed = State.finish(machine_state)
       {:ok, parsed}

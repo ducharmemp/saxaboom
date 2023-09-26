@@ -1,4 +1,6 @@
 defmodule Saxaboom.Stack do
+  @moduledoc false
+
   @compile {:inline, pop: 1}
   @compile {:inline, push: 2}
   @compile {:inline, top: 1}

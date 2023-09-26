@@ -1,3 +1,9 @@
+defimpl Saxaboom.ElementCollectable, for: List do
+  def element_definition(_collectable, _element), do: %{into: []}
+  def cast_element(collectable, element), do: [element | collectable]
+  def cast_nested(collectable, _element, nested), do: [nested | collectable]
+end
+
 defmodule Support.AtomEntry do
   use Saxaboom.Mapper
 
@@ -52,9 +58,10 @@ defmodule Support.AtomEntry do
   defp recurse_build([%Element{name: name, attributes: attributes, text: text}]) do
     element(
       name,
-      # Xmerl and erlsom expand out the xmlns attribute, while saxy does not. This means that the xmlns is present for re-serialization
-      # only for Saxy. For testing we want to ignore this. In production if you're dealing with this sort of raw format,
-      # you'd have to account for minor parsing differences between adapter libs.
+      # Xmerl and erlsom expand out the xmlns attribute, while saxy does not. This means that the xmlns is present
+      # for re-serialization only for Saxy. For testing we want to ignore this. In production if you're
+      # dealing with this sort of raw format, you'd have to account for minor parsing differences
+      # between adapter libs.
       Enum.to_list(attributes) |> Enum.reject(fn {name, _val} -> name == "xmlns" end),
       text
     )

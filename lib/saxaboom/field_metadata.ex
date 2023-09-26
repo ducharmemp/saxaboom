@@ -1,4 +1,6 @@
 defmodule Saxaboom.FieldMetadata do
+  @moduledoc false
+
   alias Saxaboom.Element
 
   defstruct [:field_name, :element_name, :value, :with, :with_keys, :cast, :into, :kind]

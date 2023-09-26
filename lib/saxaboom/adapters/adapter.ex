@@ -1,5 +1,7 @@
 defmodule Saxaboom.Adapters.Adapter do
-  @callback parse(xml :: term, into :: term, adapter_options :: term) :: {:ok, parsed :: term}
+  @moduledoc false
+
+  @callback parse(xml :: term, into :: term, parser_options :: term) :: {:ok, parsed :: term}
 
   alias Saxaboom.Element
   alias Saxaboom.Stack

@@ -1,4 +1,8 @@
 defmodule Saxaboom.Caster do
+  @moduledoc """
+
+  """
+
   def cast_value(type, value) when is_function(type) do
     type.(value)
   end

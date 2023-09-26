@@ -39,7 +39,7 @@ defmodule Benchmark do
       inputs: Map.merge(files, streams),
       formatters: [
         Benchee.Formatters.Console
-      ],
+      ]
     )
   end
 end

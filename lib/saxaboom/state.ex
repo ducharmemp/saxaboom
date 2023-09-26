@@ -1,4 +1,6 @@
 defmodule Saxaboom.State do
+  @moduledoc false
+
   use GenServer
 
   alias Saxaboom.ElementCollectable

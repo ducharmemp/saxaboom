@@ -1,4 +1,8 @@
 defmodule Saxaboom.Mapper do
+  @moduledoc """
+
+  """
+
   defmacro __using__(_opts) do
     quote do
       import Saxaboom.Mapper, only: [document: 1]

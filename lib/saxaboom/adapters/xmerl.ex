@@ -1,4 +1,6 @@
 defmodule Saxaboom.Adapters.Xmerl do
+  @moduledoc false
+
   @behaviour Saxaboom.Adapters.Adapter
 
   alias Saxaboom.Adapters.Adapter
@@ -7,11 +9,11 @@ defmodule Saxaboom.Adapters.Xmerl do
   alias Saxaboom.State
 
   @impl true
-  def parse(xml, into, adapter_options) when is_binary(xml) do
+  def parse(xml, into, parser_options) when is_binary(xml) do
     {:ok, %{machine_state: machine_state}, _} =
       :xmerl_sax_parser.stream(
         xml,
-        adapter_options ++
+        parser_options ++
           [
             event_fun: &handle_event/3,
             event_state: Adapter.initialize_state(into)
@@ -23,11 +25,11 @@ defmodule Saxaboom.Adapters.Xmerl do
   end
 
   @impl true
-  def parse(xml, into, adapter_options) do
+  def parse(xml, into, parser_options) do
     {:ok, %{machine_state: machine_state}, _} =
       :xmerl_sax_parser.stream(
         "",
-        adapter_options ++
+        parser_options ++
           [
             event_fun: &handle_event/3,
             event_state: Adapter.initialize_state(into),
