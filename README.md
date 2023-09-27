@@ -1,6 +1,6 @@
 # Saxaboom
 
-[![Test suite](https://github.com/ducharmemp/saxaboom/actions/workflows/elixir.yml/badge.svg?branch=main)](https://github.com/qcam/saxy/actions/workflows/test.yml)
+[![Test suite](https://github.com/ducharmemp/saxaboom/actions/workflows/elixir.yml/badge.svg?branch=main)](https://github.com/ducharmemp/saxaboom/actions/workflows/elixir.yml)
 [![Module Version](https://img.shields.io/hexpm/v/saxaboom.svg)](https://hex.pm/packages/saxaboom)
 
 
