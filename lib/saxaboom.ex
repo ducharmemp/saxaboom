@@ -1,10 +1,13 @@
 defmodule Saxaboom do
   @moduledoc """
-
+  The main entrypoint for parsing a document from a string or Stream.
   """
 
   alias Saxaboom.Adapters
 
+  @doc """
+  Parses a given document into a user-defined struct (see: [Saxaboom.Mapper](https://hexdocs.pm/saxaboom/Saxaboom.Mapper.html) for more information)
+  """
   def parse(xml, into, options \\ []) do
     parser =
       case Keyword.get(options, :adapter, :xmerl) do
@@ -32,7 +35,7 @@ defmodule Saxaboom do
 
   if Code.ensure_loaded?(:erlsom) do
     defp parse_erlsom(xml, into, parser_options) do
-      Adapters.Saxy.parse(xml, into, parser_options)
+      Adapters.Erlsom.parse(xml, into, parser_options)
     end
   else
     defp parse_erlsom(_xml, _into, _parser_options) do

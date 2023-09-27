@@ -11,21 +11,26 @@ if Code.ensure_loaded?(:erlsom) do
 
     @impl true
     def parse(xml, into, parser_options) when is_binary(xml) do
-      {:ok, %{machine_state: machine_state}, _} =
-        :erlsom.parse_sax(
-          xml,
-          Adapter.initialize_state(into),
-          &handle_event/2,
-          parser_options
-        )
+      case :erlsom.parse_sax(
+             xml,
+             Adapter.initialize_state(into),
+             &handle_event/2,
+             parser_options
+           ) do
+        {:ok, %{machine_state_pid: machine_state_pid}, _} ->
+          parsed = State.finish(machine_state_pid)
+          {:ok, parsed}
 
-      parsed = State.finish(machine_state)
-      {:ok, parsed}
+        err ->
+          err
+      end
+    catch
+      err -> err
     end
 
     @impl true
     def parse(xml, into, parser_options) do
-      {:ok, %{machine_state: machine_state}, _} =
+      {:ok, %{machine_state_pid: machine_state_pid}, _} =
         :erlsom.parse_sax(
           "",
           Adapter.initialize_state(into),
@@ -43,19 +48,20 @@ if Code.ensure_loaded?(:erlsom) do
             ]
         )
 
-      parsed = State.finish(machine_state)
+      parsed = State.finish(machine_state_pid)
       {:ok, parsed}
     end
 
     def handle_event(
           {:startElement, _uri, local_name, prefix, attributes},
-          %{element_stack: element_stack, machine_state: machine_state, depth: depth} = state
+          %{element_stack: element_stack, machine_state_pid: machine_state_pid, depth: depth} =
+            state
         ) do
       name = Enum.join([prefix, local_name] |> Enum.reject(fn val -> val == ~c"" end), ":")
       attributes = normalize_attributes(attributes)
       current_element = %Element{name: name, attributes: attributes}
 
-      :ok = State.start_element(machine_state, current_element, depth)
+      :ok = State.start_element(machine_state_pid, current_element, depth)
 
       element_stack = Stack.push(element_stack, current_element)
       %{state | element_stack: element_stack, depth: depth + 1}
@@ -63,12 +69,13 @@ if Code.ensure_loaded?(:erlsom) do
 
     def handle_event(
           {:endElement, _uri, _local_name, _prefix},
-          %{element_stack: element_stack, machine_state: machine_state, depth: depth} = state
+          %{element_stack: element_stack, machine_state_pid: machine_state_pid, depth: depth} =
+            state
         ) do
       {current_element, element_stack} = Stack.pop(element_stack)
       depth = depth - 1
 
-      :ok = State.end_element(machine_state, current_element, depth)
+      :ok = State.end_element(machine_state_pid, current_element, depth)
 
       %{state | element_stack: element_stack, depth: depth}
     end

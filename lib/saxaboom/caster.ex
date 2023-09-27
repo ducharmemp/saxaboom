@@ -3,6 +3,7 @@ defmodule Saxaboom.Caster do
   Defines semantics for standard casting mechanisms to be called after a given value has been parsed from a document.
   The current out of the box casters include:
 
+  - `:noop` <-- the default
   - `:string`
   - `:float`
   - `:integer`
@@ -18,6 +19,10 @@ defmodule Saxaboom.Caster do
 
   def cast_value(type, value) when is_function(type) do
     type.(value)
+  end
+
+  def cast_value(:noop, value) do
+    value
   end
 
   def cast_value(:string, value) do

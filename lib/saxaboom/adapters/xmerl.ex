@@ -10,23 +10,26 @@ defmodule Saxaboom.Adapters.Xmerl do
 
   @impl true
   def parse(xml, into, parser_options) when is_binary(xml) do
-    {:ok, %{machine_state: machine_state}, _} =
-      :xmerl_sax_parser.stream(
-        xml,
-        parser_options ++
-          [
-            event_fun: &handle_event/3,
-            event_state: Adapter.initialize_state(into)
-          ]
-      )
+    case :xmerl_sax_parser.stream(
+           xml,
+           parser_options ++
+             [
+               event_fun: &handle_event/3,
+               event_state: Adapter.initialize_state(into)
+             ]
+         ) do
+      {:ok, %{machine_state_pid: machine_state_pid}, _} ->
+        parsed = State.finish(machine_state_pid)
+        {:ok, parsed}
 
-    parsed = State.finish(machine_state)
-    {:ok, parsed}
+      err ->
+        err
+    end
   end
 
   @impl true
   def parse(xml, into, parser_options) do
-    {:ok, %{machine_state: machine_state}, _} =
+    {:ok, %{machine_state_pid: machine_state_pid}, _} =
       :xmerl_sax_parser.stream(
         "",
         parser_options ++
@@ -41,20 +44,21 @@ defmodule Saxaboom.Adapters.Xmerl do
           ]
       )
 
-    parsed = State.finish(machine_state)
+    parsed = State.finish(machine_state_pid)
     {:ok, parsed}
   end
 
   def handle_event(
         {:startElement, _uri, _local_name, {prefix, name}, attributes},
         _location,
-        %{element_stack: element_stack, machine_state: machine_state, depth: depth} = state
+        %{element_stack: element_stack, machine_state_pid: machine_state_pid, depth: depth} =
+          state
       ) do
     name = Enum.join([prefix, name] |> Enum.reject(fn val -> val == ~c"" end), ":")
     attributes = normalize_attributes(attributes)
     current_element = %Element{name: name, attributes: attributes}
 
-    :ok = State.start_element(machine_state, current_element, depth)
+    :ok = State.start_element(machine_state_pid, current_element, depth)
 
     element_stack = Stack.push(element_stack, current_element)
     %{state | element_stack: element_stack, depth: depth + 1}
@@ -63,12 +67,13 @@ defmodule Saxaboom.Adapters.Xmerl do
   def handle_event(
         {:endElement, _uri, _local_name, _qualified_name},
         _location,
-        %{element_stack: element_stack, machine_state: machine_state, depth: depth} = state
+        %{element_stack: element_stack, machine_state_pid: machine_state_pid, depth: depth} =
+          state
       ) do
     {current_element, element_stack} = Stack.pop(element_stack)
     depth = depth - 1
 
-    :ok = State.end_element(machine_state, current_element, depth)
+    :ok = State.end_element(machine_state_pid, current_element, depth)
 
     %{state | element_stack: element_stack, depth: depth}
   end

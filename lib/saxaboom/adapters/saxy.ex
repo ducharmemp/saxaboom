@@ -11,30 +11,34 @@ if Code.ensure_loaded?(Saxy) do
     alias Saxaboom.State
 
     def parse(xml, into, parser_options) when is_binary(xml) do
-      {:ok, %{machine_state: machine_state}} =
-        Saxy.parse_string(xml, __MODULE__, Adapter.initialize_state(into), parser_options)
+      case Saxy.parse_string(xml, __MODULE__, Adapter.initialize_state(into), parser_options) do
+        {:ok, %{machine_state_pid: machine_state_pid}} ->
+          parsed = State.finish(machine_state_pid)
+          {:ok, parsed}
 
-      parsed = State.finish(machine_state)
-      {:ok, parsed}
+        err ->
+          err
+      end
     end
 
     def parse(xml, into, parser_options) do
-      {:ok, %{machine_state: machine_state}} =
+      {:ok, %{machine_state_pid: machine_state_pid}} =
         Saxy.parse_stream(xml, __MODULE__, Adapter.initialize_state(into), parser_options)
 
-      parsed = State.finish(machine_state)
+      parsed = State.finish(machine_state_pid)
       {:ok, parsed}
     end
 
     def handle_event(
           :start_element,
           {local_name, attributes},
-          %{element_stack: element_stack, machine_state: machine_state, depth: depth} = state
+          %{element_stack: element_stack, machine_state_pid: machine_state_pid, depth: depth} =
+            state
         ) do
       attributes = normalize_attributes(attributes)
       current_element = %Element{name: local_name, attributes: attributes}
 
-      :ok = State.start_element(machine_state, current_element, depth)
+      :ok = State.start_element(machine_state_pid, current_element, depth)
 
       element_stack = Stack.push(element_stack, current_element)
       {:ok, %{state | element_stack: element_stack, depth: depth + 1}}
@@ -43,12 +47,13 @@ if Code.ensure_loaded?(Saxy) do
     def handle_event(
           :end_element,
           _local_name,
-          %{element_stack: element_stack, machine_state: machine_state, depth: depth} = state
+          %{element_stack: element_stack, machine_state_pid: machine_state_pid, depth: depth} =
+            state
         ) do
       {current_element, element_stack} = Stack.pop(element_stack)
       depth = depth - 1
 
-      :ok = State.end_element(machine_state, current_element, depth)
+      :ok = State.end_element(machine_state_pid, current_element, depth)
 
       {:ok, %{state | element_stack: element_stack, depth: depth}}
     end

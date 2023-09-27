@@ -25,7 +25,7 @@ defmodule Saxaboom.FieldMetadata do
         |> Map.keys()
         |> MapSet.new()
         |> Enum.to_list(),
-      cast: Access.get(opts, :cast, :string),
+      cast: Access.get(opts, :cast, :noop),
       into: Access.get(opts, :into),
       kind: kind
     }
