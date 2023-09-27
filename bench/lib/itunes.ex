@@ -31,8 +31,8 @@ defmodule ITunesRSS do
 
     # iTunes RSS feeds can have multiple main categories and multiple
     # sub-categories per category.
-    # elements :"itunes:category", as: :_itunes_categories,
-    #                               class: ITunesRSSCategory
+    # elements :"itunes:category", as: :itunes_categories,
+    #                               into: ITunesRSSCategory
 
     # elements :"itunes:owner", as: :itunes_owners, class: ITunesRSSOwner
     elements(:item, as: :entries, into: %ITunesRSSItem{})

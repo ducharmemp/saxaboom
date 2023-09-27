@@ -49,20 +49,17 @@ defmodule Saxaboom.State do
   def handle_cast({:end_element, element, depth}, handler_stack) do
     {handler_info, handler_stack} = Stack.pop(handler_stack)
     {introduced_depth, current_handler} = handler_info
-    current_handler = ElementCollectable.cast_element(current_handler, element)
-
-    handler_stack = Stack.push(handler_stack, {introduced_depth, current_handler})
 
     handler_stack =
       if introduced_depth == depth do
-        {{_, parsed_handler}, handler_stack} = Stack.pop(handler_stack)
         {parent_depth, parent_handler} = Stack.top(handler_stack)
 
-        parent_handler = ElementCollectable.cast_nested(parent_handler, element, parsed_handler)
-
+        current_handler = ElementCollectable.cast_element(current_handler, element)
+        parent_handler = ElementCollectable.cast_nested(parent_handler, element, current_handler)
         Stack.swap(handler_stack, {parent_depth, parent_handler})
       else
-        handler_stack
+        current_handler = ElementCollectable.cast_element(current_handler, element)
+        Stack.push(handler_stack, {introduced_depth, current_handler})
       end
 
     {:noreply, handler_stack}

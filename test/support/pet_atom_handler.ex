@@ -75,8 +75,8 @@ defmodule Support.AtomEntry do
     )
   end
 
-  def serialize_to_string([_wrapper_element | tree]) do
-    Saxy.encode!(recurse_build(Enum.at(tree, 0)))
+  def serialize_to_string(tree) do
+    Saxy.encode!(recurse_build(tree))
   end
 end
 

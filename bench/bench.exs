@@ -2,11 +2,7 @@ defmodule Benchmark do
   def main() do
     data = [
       "anxiety",
-      "ben",
       "daily",
-      "dave",
-      "stuff",
-      "sleepy"
     ]
 
     files = Map.new(data, fn name ->
