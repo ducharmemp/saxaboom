@@ -1,14 +1,25 @@
 defmodule Saxaboom.Mapper do
   @moduledoc """
+  The main user interface for defining mapping definitions.
 
+  `Saxaboom.Mapper` exposes a micro-DSL for describing the expected structure of a given document. There are three
+  components to the `Saxaboom.Mapper` interface: `
+
+  - `document`: a directive describing the "envelope" of the incoming document (read: the whole document). This exposes the internal DSL.
+  - `element`: a directive to match zero to one element and collect into a single struct field
+  - `elements`: a directive to match zero to N elements and collect in a list in the order they are encountered
   """
 
+  @doc false
   defmacro __using__(_opts) do
     quote do
       import Saxaboom.Mapper, only: [document: 1]
     end
   end
 
+  @doc """
+  Begins the definition of a "document", that is, a section of parseable content.
+  """
   defmacro document(do: block) do
     quote do
       unquote(prelude())
@@ -118,6 +129,9 @@ defmodule Saxaboom.Mapper do
     end
   end
 
+  @doc """
+  Defines a structure that can match against 0 or 1 elements in the given document.
+  """
   defmacro element(name, opts \\ []) do
     quote do
       metadata = Saxaboom.FieldMetadata.from(unquote(name), unquote(opts), :element)
@@ -125,6 +139,9 @@ defmodule Saxaboom.Mapper do
     end
   end
 
+  @doc """
+  Defines a structure that can match against 0 or N elements in the given document.
+  """
   defmacro elements(name, opts \\ []) do
     quote do
       metadata = Saxaboom.FieldMetadata.from(unquote(name), unquote(opts), :elements)

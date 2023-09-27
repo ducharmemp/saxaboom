@@ -37,7 +37,7 @@ end
 
 ## About
 
-Saxaboom is a data-mapper capable of transforming tree-structures (currently XML via SAX) into a tree of structs. Think
+Saxaboom is a data-mapper capable of transforming XML via SAX into a tree of structs. Think
 of it as xpath selectors but with the ability to work on potentially infinite streams of data with low memory usage since it only
 works with a few elements at a time relative to the rest of the document. If you're familiar with https://github.com/pauldix/sax-machine
 then this library should more or less look exactly the same with some minor tweaks.
