@@ -7,6 +7,16 @@ defmodule Saxaboom do
 
   @doc """
   Parses a given document into a user-defined struct (see: [Saxaboom.Mapper](https://hexdocs.pm/saxaboom/Saxaboom.Mapper.html) for more information)
+
+  Takes as arguments:
+    - `xml`: a string or stream of XML data
+    - `into` a `Saxaboom.Mapper` type that describes the document to be parsed
+
+  Takes as keyword arguments:
+    - `adapter`: an atom describing the adapter to use when parsing the document
+       - Defaults to `xmerl`
+    - `parser_options`: a list of options to pass down to the chosen adapter. Refer to the parser documentation for more information.
+
   """
   def parse(xml, into, options \\ []) do
     parser =
