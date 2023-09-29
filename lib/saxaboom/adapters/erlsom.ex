@@ -4,16 +4,15 @@ if Code.ensure_loaded?(:erlsom) do
 
     @behaviour Saxaboom.Adapters.Adapter
 
-    alias Saxaboom.Adapters.Adapter
-    alias Saxaboom.Element
-    alias Saxaboom.Stack
     alias Saxaboom.State
 
     @impl true
     def parse(xml, into, parser_options) when is_binary(xml) do
+      {:ok, machine_state_pid} = State.start_link(into)
+
       case :erlsom.parse_sax(
              xml,
-             Adapter.initialize_state(into),
+             %{machine_state_pid: machine_state_pid},
              &handle_event/2,
              parser_options
            ) do
@@ -30,10 +29,12 @@ if Code.ensure_loaded?(:erlsom) do
 
     @impl true
     def parse(xml, into, parser_options) do
+      {:ok, machine_state_pid} = State.start_link(into)
+
       {:ok, %{machine_state_pid: machine_state_pid}, _} =
         :erlsom.parse_sax(
           "",
-          Adapter.initialize_state(into),
+          %{machine_state_pid: machine_state_pid},
           &handle_event/2,
           parser_options ++
             [
@@ -54,44 +55,40 @@ if Code.ensure_loaded?(:erlsom) do
 
     def handle_event(
           {:startElement, _uri, local_name, prefix, attributes},
-          %{element_stack: element_stack, machine_state_pid: machine_state_pid, depth: depth} =
-            state
+          %{machine_state_pid: machine_state_pid} = state
         ) do
-      name = Enum.join([prefix, local_name] |> Enum.reject(fn val -> val == ~c"" end), ":")
+      name = normalize_name(prefix, local_name)
       attributes = normalize_attributes(attributes)
-      current_element = %Element{name: name, attributes: attributes}
 
-      :ok = State.start_element(machine_state_pid, current_element, depth)
+      :ok = State.start_element(machine_state_pid, name, attributes)
 
-      element_stack = Stack.push(element_stack, current_element)
-      %{state | element_stack: element_stack, depth: depth + 1}
+      state
     end
 
     def handle_event(
-          {:endElement, _uri, _local_name, _prefix},
-          %{element_stack: element_stack, machine_state_pid: machine_state_pid, depth: depth} =
-            state
+          {:endElement, _uri, local_name, prefix},
+          %{machine_state_pid: machine_state_pid} = state
         ) do
-      {current_element, element_stack} = Stack.pop(element_stack)
-      depth = depth - 1
+      name = normalize_name(prefix, local_name)
+      :ok = State.end_element(machine_state_pid, name)
 
-      :ok = State.end_element(machine_state_pid, current_element, depth)
-
-      %{state | element_stack: element_stack, depth: depth}
+      state
     end
 
     def handle_event(
           {:characters, characters},
-          %{element_stack: element_stack} = state
+          %{machine_state_pid: machine_state_pid} = state
         ) do
-      {current, element_stack} = Stack.pop(element_stack)
-      current = %Element{current | text: to_string(characters)}
-      %{state | element_stack: Stack.push(element_stack, current)}
+      :ok = State.characters(machine_state_pid, to_string(characters))
+      state
     end
 
     def handle_event(_event, state), do: state
 
-    def normalize_attributes(attributes) do
+    defp normalize_name(prefix, local_name),
+      do: Enum.join([prefix, local_name] |> Enum.reject(fn val -> val == ~c"" end), ":")
+
+    defp normalize_attributes(attributes) do
       attributes
       |> Enum.map(fn {_kind, name, prefix, _, value} ->
         {Enum.join([prefix, name] |> Enum.reject(fn val -> val == ~c"" end), ":"),
