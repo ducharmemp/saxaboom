@@ -34,75 +34,123 @@ defmodule Saxaboom.State do
     {
       :ok,
       %{
-        handler_stack: [{-1, initial_handler}],
-        element_stack: [%Element{name: "document"}]
+        current_handler: initial_handler,
+        introduced_depth: -1,
+        current_element: %Element{name: "document"},
+        handler_stack: [],
+        element_stack: []
       }
     }
   end
 
   @impl true
-  def handle_cast({:start_element, element_name, attributes}, %{
-        handler_stack: handler_stack,
-        element_stack: element_stack
-      }) do
-    current_element = %Element{name: element_name, attributes: attributes}
-    element_stack = Stack.push(element_stack, current_element)
-    depth = length(element_stack)
+  def handle_cast({:start_element, element_name, attributes}, state) do
+    state =
+      state
+      |> push_element(%Element{name: element_name, attributes: attributes})
+      |> maybe_push_handler()
 
-    {_, current_handler} = Stack.top(handler_stack)
+    {:noreply, state}
+  end
 
+  @impl true
+  def handle_cast({:end_element, _element_name}, state) do
+    state =
+      state
+      |> update_handler()
+      |> maybe_pop_handler()
+      |> pop_element()
+
+    {:noreply, state}
+  end
+
+  def handle_cast(
+        {:characters, characters},
+        %{
+          current_element: current_element,
+          current_handler: current_handler
+        } = state
+      ) do
+    current_element = %{current_element | text: characters}
+
+    current_handler =
+      ElementCollectable.cast_characters(current_handler, current_element, characters)
+
+    {:noreply, %{state | current_element: current_element, current_handler: current_handler}}
+  end
+
+  @impl true
+  def handle_call({:finish}, _from, %{current_handler: current_handler}) do
+    {:reply, current_handler, []}
+  end
+
+  defp push_element(
+         %{element_stack: element_stack, current_element: current_element} = state,
+         element
+       ) do
+    %{state | element_stack: Stack.push(element_stack, current_element), current_element: element}
+  end
+
+  defp maybe_push_handler(
+         %{
+           handler_stack: handler_stack,
+           current_handler: current_handler,
+           introduced_depth: introduced_depth,
+           current_element: current_element,
+           element_stack: element_stack
+         } = state
+       ) do
     handler_definition = ElementCollectable.element_definition(current_handler, current_element)
 
-    handler_stack =
-      if handler_definition && handler_definition.into do
-        Stack.push(handler_stack, {depth, handler_definition.into})
-      else
-        handler_stack
-      end
+    if handler_definition && handler_definition.into do
+      current_depth = length(element_stack)
 
-    {:noreply, %{handler_stack: handler_stack, element_stack: element_stack}}
+      %{
+        state
+        | handler_stack: Stack.push(handler_stack, {introduced_depth, current_handler}),
+          current_handler: handler_definition.into,
+          introduced_depth: current_depth
+      }
+    else
+      state
+    end
   end
 
-  @impl true
-  def handle_cast({:end_element, _element_name}, %{
-        handler_stack: handler_stack,
-        element_stack: element_stack
-      }) do
-    depth = length(element_stack)
-    {element, element_stack} = Stack.pop(element_stack)
-
-    {handler_info, handler_stack} = Stack.pop(handler_stack)
-    {introduced_depth, current_handler} = handler_info
-
-    handler_stack =
-      if introduced_depth == depth do
-        {parent_depth, parent_handler} = Stack.top(handler_stack)
-
-        current_handler = ElementCollectable.cast_element(current_handler, element)
-        parent_handler = ElementCollectable.cast_nested(parent_handler, element, current_handler)
-        Stack.swap(handler_stack, {parent_depth, parent_handler})
-      else
-        current_handler = ElementCollectable.cast_element(current_handler, element)
-        Stack.push(handler_stack, {introduced_depth, current_handler})
-      end
-
-    {:noreply, %{handler_stack: handler_stack, element_stack: element_stack}}
+  defp update_handler(
+         %{current_handler: current_handler, current_element: current_element} = state
+       ) do
+    %{state | current_handler: ElementCollectable.cast_element(current_handler, current_element)}
   end
 
-  def handle_cast({:characters, characters}, %{
-        handler_stack: handler_stack,
-        element_stack: element_stack
-      }) do
+  defp maybe_pop_handler(
+         %{
+           handler_stack: handler_stack,
+           introduced_depth: introduced_depth,
+           current_handler: current_handler,
+           current_element: current_element,
+           element_stack: element_stack
+         } = state
+       ) do
+    current_depth = length(element_stack)
+
+    if current_depth == introduced_depth do
+      {{parent_introduced_depth, parent_handler}, handler_stack} = Stack.pop(handler_stack)
+      parent_handler =
+        ElementCollectable.cast_nested(parent_handler, current_element, current_handler)
+
+      %{
+        state
+        | handler_stack: handler_stack,
+          current_handler: parent_handler,
+          introduced_depth: parent_introduced_depth
+      }
+    else
+      state
+    end
+  end
+
+  defp pop_element(%{element_stack: element_stack} = state) do
     {current_element, element_stack} = Stack.pop(element_stack)
-    current_element = %{current_element | text: characters}
-    element_stack = Stack.push(element_stack, current_element)
-
-    {:noreply, %{handler_stack: handler_stack, element_stack: element_stack}}
-  end
-
-  @impl true
-  def handle_call({:finish}, _from, %{handler_stack: handler_stack}) do
-    {_, handler} = Stack.top(handler_stack)
-    {:reply, handler, []}
+    %{state | element_stack: element_stack, current_element: current_element}
   end
 end

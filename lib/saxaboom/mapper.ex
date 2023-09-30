@@ -109,6 +109,16 @@ defmodule Saxaboom.Mapper do
           %{mapper | definition.field_name => current ++ [value]}
         end
 
+        def cast_characters(
+              mapper,
+              %Element{name: name, attributes: attributes} = element,
+              characters
+            ) do
+          # definition = element_definition(mapper, element)
+          # update_field(mapper, definition, element)
+          mapper
+        end
+
         def cast_element(
               mapper,
               %Element{name: name, attributes: attributes} = element

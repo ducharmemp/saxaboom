@@ -10,7 +10,11 @@ defmodule Saxaboom.StateTest do
     test "when a nested handler is not necessary it does not reply to the caller and returns the handler stack as is" do
       handler_stack = [{0, %TestHandler{}}]
 
-      assert {:noreply, %{element_stack: [%Element{name: "name", attributes: %{}}], handler_stack: ^handler_stack}} =
+      assert {:noreply,
+              %{
+                element_stack: [%Element{name: "name", attributes: %{}}],
+                handler_stack: ^handler_stack
+              }} =
                State.handle_cast({:start_element, "name", %{}}, %{
                  element_stack: [],
                  handler_stack: handler_stack

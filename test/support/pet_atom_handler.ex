@@ -1,7 +1,12 @@
 defimpl Saxaboom.ElementCollectable, for: List do
   def element_definition(_collectable, _element), do: %{into: []}
+
+  def cast_characters(collectable, _element, characters) do
+    collectable ++ [characters]
+  end
+
   def cast_element(collectable, element), do: [element | collectable]
-  def cast_nested(collectable, _element, nested), do: [nested | collectable]
+  def cast_nested(collectable, _element, nested), do: collectable ++ [nested]
 end
 
 defmodule Support.AtomEntry do
@@ -55,15 +60,14 @@ defmodule Support.AtomEntry do
     element :"media:content", as: :image, value: :url
   end
 
-  defp recurse_build([%Element{name: name, attributes: attributes, text: text}]) do
-    element(
+  defp recurse_build([%Element{name: name, attributes: attributes}]) do
+    empty_element(
       name,
       # Xmerl and erlsom expand out the xmlns attribute, while saxy does not. This means that the xmlns is present
       # for re-serialization only for Saxy. For testing we want to ignore this. In production if you're
       # dealing with this sort of raw format, you'd have to account for minor parsing differences
       # between adapter libs.
-      Enum.to_list(attributes) |> Enum.reject(fn {name, _val} -> name == "xmlns" end),
-      text
+      Enum.to_list(attributes) |> Enum.reject(fn {name, _val} -> name == "xmlns" end)
     )
   end
 
@@ -75,7 +79,12 @@ defmodule Support.AtomEntry do
     )
   end
 
+  defp recurse_build(node) do
+    node
+  end
+
   def serialize_to_string(tree) do
+    dbg(tree)
     Saxy.encode!(recurse_build(tree))
   end
 end
