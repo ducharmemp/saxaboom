@@ -8,16 +8,16 @@ if Code.ensure_loaded?(:erlsom) do
 
     @impl true
     def parse(xml, into, parser_options) when is_binary(xml) do
-      {:ok, machine_state_pid} = State.start_link(into)
+      state = State.start_link(into)
 
       case :erlsom.parse_sax(
              xml,
-             %{machine_state_pid: machine_state_pid},
+             state,
              &handle_event/2,
              parser_options
            ) do
-        {:ok, %{machine_state_pid: machine_state_pid}, _} ->
-          parsed = State.finish(machine_state_pid)
+        {:ok, state, _} ->
+          parsed = State.finish(state)
           {:ok, parsed}
 
         err ->
@@ -29,12 +29,12 @@ if Code.ensure_loaded?(:erlsom) do
 
     @impl true
     def parse(xml, into, parser_options) do
-      {:ok, machine_state_pid} = State.start_link(into)
+      state = State.start_link(into)
 
-      {:ok, %{machine_state_pid: machine_state_pid}, _} =
+      {:ok, state, _} =
         :erlsom.parse_sax(
           "",
-          %{machine_state_pid: machine_state_pid},
+          state,
           &handle_event/2,
           parser_options ++
             [
@@ -49,38 +49,33 @@ if Code.ensure_loaded?(:erlsom) do
             ]
         )
 
-      parsed = State.finish(machine_state_pid)
+      parsed = State.finish(state)
       {:ok, parsed}
     end
 
     def handle_event(
           {:startElement, _uri, local_name, prefix, attributes},
-          %{machine_state_pid: machine_state_pid} = state
+          state = state
         ) do
       name = normalize_name(prefix, local_name)
       attributes = normalize_attributes(attributes)
 
-      :ok = State.start_element(machine_state_pid, name, attributes)
-
-      state
+      State.start_element(state, name, attributes)
     end
 
     def handle_event(
           {:endElement, _uri, local_name, prefix},
-          %{machine_state_pid: machine_state_pid} = state
+          state = state
         ) do
       name = normalize_name(prefix, local_name)
-      :ok = State.end_element(machine_state_pid, name)
-
-      state
+      State.end_element(state, name)
     end
 
     def handle_event(
           {:characters, characters},
-          %{machine_state_pid: machine_state_pid} = state
+          state = state
         ) do
-      :ok = State.characters(machine_state_pid, to_string(characters))
-      state
+      State.characters(state, to_string(characters))
     end
 
     def handle_event(_event, state), do: state

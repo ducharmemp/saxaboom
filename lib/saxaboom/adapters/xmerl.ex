@@ -7,18 +7,18 @@ defmodule Saxaboom.Adapters.Xmerl do
 
   @impl true
   def parse(xml, into, parser_options) when is_binary(xml) do
-    {:ok, machine_state_pid} = State.start_link(into)
+    state = State.start_link(into)
 
     case :xmerl_sax_parser.stream(
            xml,
            parser_options ++
              [
                event_fun: &handle_event/3,
-               event_state: %{machine_state_pid: machine_state_pid}
+               event_state: state
              ]
          ) do
-      {:ok, %{machine_state_pid: machine_state_pid}, _} ->
-        parsed = State.finish(machine_state_pid)
+      {:ok, state, _} ->
+        parsed = State.finish(state)
         {:ok, parsed}
 
       err ->
@@ -28,15 +28,15 @@ defmodule Saxaboom.Adapters.Xmerl do
 
   @impl true
   def parse(xml, into, parser_options) do
-    {:ok, machine_state_pid} = State.start_link(into)
+    state = State.start_link(into)
 
-    {:ok, %{machine_state_pid: machine_state_pid}, _} =
+    {:ok, state, _} =
       :xmerl_sax_parser.stream(
         "",
         parser_options ++
           [
             event_fun: &handle_event/3,
-            event_state: %{machine_state_pid: machine_state_pid},
+            event_state: state,
             continuation_state: xml,
             continuation_fun: fn stream ->
               {lines, stream} = StreamSplit.take_and_drop(stream, 1)
@@ -45,40 +45,36 @@ defmodule Saxaboom.Adapters.Xmerl do
           ]
       )
 
-    parsed = State.finish(machine_state_pid)
+    parsed = State.finish(state)
     {:ok, parsed}
   end
 
   def handle_event(
         {:startElement, _uri, _local_name, {prefix, name}, attributes},
         _location,
-        %{machine_state_pid: machine_state_pid} = state
+        state = state
       ) do
     name = normalize_name(prefix, name)
     attributes = normalize_attributes(attributes)
 
-    :ok = State.start_element(machine_state_pid, name, attributes)
-    state
+    State.start_element(state, name, attributes)
   end
 
   def handle_event(
         {:endElement, _uri, _local_name, {prefix, name}},
         _location,
-        %{machine_state_pid: machine_state_pid} = state
+        state = state
       ) do
     name = normalize_name(prefix, name)
-    :ok = State.end_element(machine_state_pid, name)
-
-    state
+    State.end_element(state, name)
   end
 
   def handle_event(
         {:characters, characters},
         _location,
-        %{machine_state_pid: machine_state_pid} = state
+        state = state
       ) do
-    :ok = State.characters(machine_state_pid, to_string(characters))
-    state
+    State.characters(state, to_string(characters))
   end
 
   def handle_event(_event, _arg, state), do: state

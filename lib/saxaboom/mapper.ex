@@ -106,8 +106,8 @@ defmodule Saxaboom.Mapper do
         # We don't want anything out of the element tag
         defp extract_value(element, %{value: nil}), do: nil
         # We want something out of the element tag
-        defp extract_value(%{attr}, %{value: value}),
-          do: Access.get(element.attributes, definition.value, nil)
+        defp extract_value(%{attributes: attributes}, %{value: value}),
+          do: Access.get(attributes, value, nil)
 
         defp cast_value(value, nil), do: nil
         defp cast_value(nil, definition), do: nil
@@ -140,16 +140,6 @@ defmodule Saxaboom.Mapper do
   Defines a structure field that can match against 0 or N elements in the given document.
   """
   defmacro elements(name, opts \\ []) do
-    quote do
-      metadata = Saxaboom.FieldMetadata.from(unquote(name), unquote(opts), :elements)
-      Module.put_attribute(__MODULE__, :xml_sax_element_metadata, metadata)
-    end
-  end
-
-  @doc """
-  Defines a structure field that matches an attribute in the top-level tag defining the current mapper
-  """
-  defmacro attribute(name, opts \\ []) do
     quote do
       metadata = Saxaboom.FieldMetadata.from(unquote(name), unquote(opts), :elements)
       Module.put_attribute(__MODULE__, :xml_sax_element_metadata, metadata)

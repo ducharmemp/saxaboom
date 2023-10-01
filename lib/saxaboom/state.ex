@@ -1,85 +1,44 @@
 defmodule Saxaboom.State do
   @moduledoc false
 
-  use GenServer
-
   alias Saxaboom.Element
   alias Saxaboom.ElementCollectable
   alias Saxaboom.Stack
 
+  defstruct [
+    :current_handler,
+    introduced_depth: -1,
+    current_element: %Element{name: "document"},
+    handler_stack: [],
+    element_stack: []
+  ]
+
   def start_link(initial_handler) do
-    GenServer.start_link(__MODULE__, initial_handler, name: __MODULE__)
+    %__MODULE__{current_handler: initial_handler}
   end
 
-  def start_element(pid, element_name, attributes) do
-    GenServer.cast(pid, {:start_element, element_name, attributes})
-  end
-
-  def end_element(pid, element_name) do
-    GenServer.cast(pid, {:end_element, element_name})
-  end
-
-  def characters(pid, characters) do
-    GenServer.cast(pid, {:characters, characters})
-  end
-
-  def finish(pid) do
-    handler = GenServer.call(pid, {:finish})
-    GenServer.stop(pid)
-    handler
-  end
-
-  @impl true
-  def init(initial_handler) do
-    {
-      :ok,
-      %{
-        current_handler: initial_handler,
-        introduced_depth: -1,
-        current_element: %Element{name: "document"},
-        handler_stack: [],
-        element_stack: []
-      }
-    }
-  end
-
-  @impl true
-  def handle_cast({:start_element, element_name, attributes}, state) do
-    state =
-      state
+  def start_element(self, element_name, attributes) do
+    self
       |> push_element(%Element{name: element_name, attributes: attributes})
-      |> update_handler()
       |> maybe_push_handler()
-
-    {:noreply, state}
+      |> update_handler()
   end
 
-  @impl true
-  def handle_cast({:end_element, _element_name}, state) do
-    state =
-      state
+  def end_element(self, _element_name) do
+    self
       |> maybe_pop_handler()
       |> pop_element()
-
-    {:noreply, state}
   end
 
-  def handle_cast(
-        {:characters, characters},
-        %{
-          current_element: current_element,
-          current_handler: current_handler
-        } = state
-      ) do
+  def characters(%{current_handler: current_handler, current_element: current_element} = self, characters) do
     current_handler =
       ElementCollectable.cast_characters(current_handler, current_element, characters)
 
-    {:noreply, %{state | current_element: current_element, current_handler: current_handler}}
+      %{self | current_element: current_element, current_handler: current_handler}
   end
 
-  @impl true
-  def handle_call({:finish}, _from, %{current_handler: current_handler}) do
-    {:reply, current_handler, []}
+  def finish(%{current_handler: current_handler}) do
+    current_handler
   end
 
   defp push_element(

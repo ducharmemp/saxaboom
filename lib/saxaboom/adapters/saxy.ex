@@ -8,16 +8,16 @@ if Code.ensure_loaded?(Saxy) do
     alias Saxaboom.State
 
     def parse(xml, into, parser_options) when is_binary(xml) do
-      {:ok, machine_state_pid} = State.start_link(into)
+      state = State.start_link(into)
 
       case Saxy.parse_string(
              xml,
              __MODULE__,
-             %{machine_state_pid: machine_state_pid},
+             state,
              parser_options
            ) do
-        {:ok, %{machine_state_pid: machine_state_pid}} ->
-          parsed = State.finish(machine_state_pid)
+        {:ok, state} ->
+          parsed = State.finish(state)
           {:ok, parsed}
 
         err ->
@@ -26,49 +26,43 @@ if Code.ensure_loaded?(Saxy) do
     end
 
     def parse(xml, into, parser_options) do
-      {:ok, machine_state_pid} = State.start_link(into)
+      state = State.start_link(into)
 
-      {:ok, %{machine_state_pid: machine_state_pid}} =
+      {:ok, state} =
         Saxy.parse_stream(
           xml,
           __MODULE__,
-          %{machine_state_pid: machine_state_pid},
+          state,
           parser_options
         )
 
-      parsed = State.finish(machine_state_pid)
+      parsed = State.finish(state)
       {:ok, parsed}
     end
 
     def handle_event(
           :start_element,
           {local_name, attributes},
-          %{machine_state_pid: machine_state_pid} = state
+          state = state
         ) do
       attributes = normalize_attributes(attributes)
-
-      :ok = State.start_element(machine_state_pid, local_name, attributes)
-      {:ok, state}
+      {:ok, State.start_element(state, local_name, attributes)}
     end
 
     def handle_event(
           :end_element,
           local_name,
-          %{machine_state_pid: machine_state_pid} = state
+          state = state
         ) do
-      :ok = State.end_element(machine_state_pid, local_name)
-
-      {:ok, state}
+      {:ok, State.end_element(state, local_name)}
     end
 
-    def handle_event(:characters, characters, %{machine_state_pid: machine_state_pid} = state) do
-      :ok = State.characters(machine_state_pid, characters)
-      {:ok, state}
+    def handle_event(:characters, characters, state = state) do
+      {:ok, State.characters(state, characters)}
     end
 
-    def handle_event(:cdata, characters, %{machine_state_pid: machine_state_pid} = state) do
-      :ok = State.characters(machine_state_pid, characters)
-      {:ok, state}
+    def handle_event(:cdata, characters, state = state) do
+      {:ok, State.characters(state, characters)}
     end
 
     def handle_event(_event, _arg, state), do: {:ok, state}
