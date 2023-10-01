@@ -29,18 +29,4 @@ defmodule SaxaboomTest.Utils.StackTest do
       assert [] |> Stack.push(1) |> Stack.top() == 1
     end
   end
-
-  describe "swap/2" do
-    test "when empty, places the item at the top of the stack" do
-      assert [] |> Stack.swap(2) == [2]
-    end
-
-    test "when it holds a single item, swaps that item" do
-      assert [] |> Stack.push(1) |> Stack.swap(2) == [2]
-    end
-
-    test "when multiple items are present, swaps the first item" do
-      assert [] |> Stack.push(1) |> Stack.push(2) |> Stack.swap(3) == [3, 1]
-    end
-  end
 end

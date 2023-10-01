@@ -3,26 +3,18 @@ defmodule Support.AtomEntry do
 
   alias Saxaboom.Element
 
-  import Saxy.XML
-
   document do
     element :title,
       as: :title,
-      with: [type: "html"],
-      into: %Saxaboom.Mapping.SimpleAccumulator{},
-      cast: &__MODULE__.serialize_to_string/1
+      with: [type: "html"]
 
     element :title,
       as: :title,
-      with: [type: "xhtml"],
-      into: %Saxaboom.Mapping.SimpleAccumulator{},
-      cast: &__MODULE__.serialize_to_string/1
+      with: [type: "xhtml"]
 
     element :title,
       as: :title,
-      with: [type: "xml"],
-      into: %Saxaboom.Mapping.SimpleAccumulator{},
-      cast: &__MODULE__.serialize_to_string/1
+      with: [type: "xml"]
 
     element :title, as: :title
     # element :title, as: :title_type, value: :type
@@ -30,9 +22,7 @@ defmodule Support.AtomEntry do
     element :name, as: :author
 
     element :content,
-      with: [type: "xhtml"],
-      into: %Saxaboom.Mapping.SimpleAccumulator{},
-      cast: &__MODULE__.serialize_to_string/1
+      with: [type: "xhtml"]
 
     element :summary
     element :enclosure, as: :image, value: :href
@@ -52,34 +42,6 @@ defmodule Support.AtomEntry do
 
     element :"media:thumbnail", as: :image, value: :url
     element :"media:content", as: :image, value: :url
-  end
-
-  defp recurse_build([%Element{name: name, attributes: attributes}]) do
-    empty_element(
-      name,
-      # Xmerl and erlsom expand out the xmlns attribute, while saxy does not. This means that the xmlns is present
-      # for re-serialization only for Saxy. For testing we want to ignore this. In production if you're
-      # dealing with this sort of raw format, you'd have to account for minor parsing differences
-      # between adapter libs.
-      Enum.to_list(attributes) |> Enum.reject(fn {name, _val} -> name == "xmlns" end)
-    )
-  end
-
-  defp recurse_build([%Element{name: name, attributes: attributes} | children]) do
-    element(
-      name,
-      Enum.to_list(attributes) |> Enum.reject(fn {name, _val} -> name == "xmlns" end),
-      children |> Enum.map(&recurse_build/1)
-    )
-  end
-
-  defp recurse_build(node) do
-    node
-  end
-
-  def serialize_to_string(tree) do
-    ""
-    # Saxy.encode!(recurse_build(tree))
   end
 end
 
