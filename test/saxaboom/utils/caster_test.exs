@@ -1,8 +1,8 @@
-defmodule Saxaboom.CasterTest do
+defmodule Saxaboom.Utils.CasterTest do
   use ExUnit.Case, async: true
-  doctest Saxaboom.Caster
+  doctest Saxaboom.Utils.Caster
 
-  alias Saxaboom.Caster
+  alias Saxaboom.Utils.Caster
 
   describe "cast_value/2" do
     test "string casting" do

@@ -3,7 +3,7 @@ defmodule Saxaboom.State do
 
   alias Saxaboom.Element
   alias Saxaboom.ElementCollectable
-  alias Saxaboom.Stack
+  alias Saxaboom.Utils.Stack
 
   defstruct [
     :current_handler,
@@ -19,22 +19,25 @@ defmodule Saxaboom.State do
 
   def start_element(self, element_name, attributes) do
     self
-      |> push_element(%Element{name: element_name, attributes: attributes})
-      |> maybe_push_handler()
-      |> update_handler()
+    |> push_element(%Element{name: element_name, attributes: attributes})
+    |> maybe_push_handler()
+    |> update_handler()
   end
 
   def end_element(self, _element_name) do
     self
-      |> maybe_pop_handler()
-      |> pop_element()
+    |> maybe_pop_handler()
+    |> pop_element()
   end
 
-  def characters(%{current_handler: current_handler, current_element: current_element} = self, characters) do
+  def characters(
+        %{current_handler: current_handler, current_element: current_element} = self,
+        characters
+      ) do
     current_handler =
       ElementCollectable.cast_characters(current_handler, current_element, characters)
 
-      %{self | current_element: current_element, current_handler: current_handler}
+    %{self | current_element: current_element, current_handler: current_handler}
   end
 
   def finish(%{current_handler: current_handler}) do

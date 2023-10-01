@@ -1,4 +1,4 @@
-defmodule Saxaboom.Stack do
+defmodule Saxaboom.Utils.Stack do
   @moduledoc false
 
   @compile {:inline, pop: 1}

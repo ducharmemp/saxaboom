@@ -1,14 +1,3 @@
-defimpl Saxaboom.ElementCollectable, for: List do
-  def element_definition(_collectable, _element), do: %{into: []}
-
-  def cast_characters(collectable, _element, characters) do
-    collectable ++ [characters]
-  end
-
-  def cast_attributes(collectable, element), do: [element | collectable]
-  def cast_nested(collectable, _element, nested), do: collectable ++ [nested]
-end
-
 defmodule Support.AtomEntry do
   use Saxaboom.Mapper
 
@@ -20,26 +9,31 @@ defmodule Support.AtomEntry do
     element :title,
       as: :title,
       with: [type: "html"],
-      into: [],
+      into: %Saxaboom.Mapping.SimpleAccumulator{},
       cast: &__MODULE__.serialize_to_string/1
 
     element :title,
       as: :title,
       with: [type: "xhtml"],
-      into: [],
+      into: %Saxaboom.Mapping.SimpleAccumulator{},
       cast: &__MODULE__.serialize_to_string/1
 
     element :title,
       as: :title,
       with: [type: "xml"],
-      into: [],
+      into: %Saxaboom.Mapping.SimpleAccumulator{},
       cast: &__MODULE__.serialize_to_string/1
 
     element :title, as: :title
     # element :title, as: :title_type, value: :type
 
     element :name, as: :author
-    element :content, with: [type: "xhtml"], into: [], cast: &__MODULE__.serialize_to_string/1
+
+    element :content,
+      with: [type: "xhtml"],
+      into: %Saxaboom.Mapping.SimpleAccumulator{},
+      cast: &__MODULE__.serialize_to_string/1
+
     element :summary
     element :enclosure, as: :image, value: :href
 

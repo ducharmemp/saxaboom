@@ -1,8 +1,8 @@
-defmodule SaxaboomTest.StackTest do
+defmodule SaxaboomTest.Utils.StackTest do
   use ExUnit.Case
-  doctest Saxaboom.Stack
+  doctest Saxaboom.Utils.Stack
 
-  alias Saxaboom.Stack
+  alias Saxaboom.Utils.Stack
 
   describe "push/2" do
     test "can push to the stack" do

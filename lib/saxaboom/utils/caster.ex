@@ -1,4 +1,4 @@
-defmodule Saxaboom.Caster do
+defmodule Saxaboom.Utils.Caster do
   @moduledoc """
   Defines semantics for standard casting mechanisms to be called after a given value has been parsed from a document.
   The current out of the box casters include:
