@@ -34,8 +34,8 @@ defmodule Saxaboom.Mapper do
       Module.register_attribute(__MODULE__, :xml_sax_element_metadata, accumulate: true)
 
       import Saxaboom.Mapper
-      alias Saxaboom.Utils.Caster
       alias Saxaboom.Element
+      alias Saxaboom.Utils.Caster
     end
   end
 

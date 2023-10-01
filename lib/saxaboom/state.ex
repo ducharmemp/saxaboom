@@ -13,7 +13,7 @@ defmodule Saxaboom.State do
     element_stack: []
   ]
 
-  def start_link(initial_handler) do
+  def initialize(initial_handler) do
     %__MODULE__{current_handler: initial_handler}
   end
 

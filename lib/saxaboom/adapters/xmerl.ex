@@ -7,7 +7,7 @@ defmodule Saxaboom.Adapters.Xmerl do
 
   @impl true
   def parse(xml, into, parser_options) when is_binary(xml) do
-    state = State.start_link(into)
+    state = State.initialize(into)
 
     case :xmerl_sax_parser.stream(
            xml,
@@ -28,7 +28,7 @@ defmodule Saxaboom.Adapters.Xmerl do
 
   @impl true
   def parse(xml, into, parser_options) do
-    state = State.start_link(into)
+    state = State.initialize(into)
 
     {:ok, state, _} =
       :xmerl_sax_parser.stream(
@@ -52,7 +52,7 @@ defmodule Saxaboom.Adapters.Xmerl do
   def handle_event(
         {:startElement, _uri, _local_name, {prefix, name}, attributes},
         _location,
-        state = state
+        state
       ) do
     name = normalize_name(prefix, name)
     attributes = normalize_attributes(attributes)
@@ -63,7 +63,7 @@ defmodule Saxaboom.Adapters.Xmerl do
   def handle_event(
         {:endElement, _uri, _local_name, {prefix, name}},
         _location,
-        state = state
+        state
       ) do
     name = normalize_name(prefix, name)
     State.end_element(state, name)
@@ -72,7 +72,7 @@ defmodule Saxaboom.Adapters.Xmerl do
   def handle_event(
         {:characters, characters},
         _location,
-        state = state
+        state
       ) do
     State.characters(state, to_string(characters))
   end

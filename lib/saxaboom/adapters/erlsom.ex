@@ -8,7 +8,7 @@ if Code.ensure_loaded?(:erlsom) do
 
     @impl true
     def parse(xml, into, parser_options) when is_binary(xml) do
-      state = State.start_link(into)
+      state = State.initialize(into)
 
       case :erlsom.parse_sax(
              xml,
@@ -29,7 +29,7 @@ if Code.ensure_loaded?(:erlsom) do
 
     @impl true
     def parse(xml, into, parser_options) do
-      state = State.start_link(into)
+      state = State.initialize(into)
 
       {:ok, state, _} =
         :erlsom.parse_sax(
@@ -55,7 +55,7 @@ if Code.ensure_loaded?(:erlsom) do
 
     def handle_event(
           {:startElement, _uri, local_name, prefix, attributes},
-          state = state
+          state
         ) do
       name = normalize_name(prefix, local_name)
       attributes = normalize_attributes(attributes)
@@ -65,7 +65,7 @@ if Code.ensure_loaded?(:erlsom) do
 
     def handle_event(
           {:endElement, _uri, local_name, prefix},
-          state = state
+          state
         ) do
       name = normalize_name(prefix, local_name)
       State.end_element(state, name)
@@ -73,7 +73,7 @@ if Code.ensure_loaded?(:erlsom) do
 
     def handle_event(
           {:characters, characters},
-          state = state
+          state
         ) do
       State.characters(state, to_string(characters))
     end
