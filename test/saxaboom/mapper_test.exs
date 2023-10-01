@@ -6,29 +6,35 @@ defmodule SaxaboomTest.MapperTest do
   alias Saxaboom.ElementCollectable
   alias Support.TestHandler
 
-  describe "single cast_element/2" do
+  describe "single cast_attributes/2" do
     test "it updates the correct field" do
       sut = %TestHandler{}
       element = %Element{name: "name", text: "Some Name", attributes: %{}}
-      assert ElementCollectable.cast_element(sut, element) == %TestHandler{name: "Some Name"}
+      assert ElementCollectable.cast_attributes(sut, element) == %TestHandler{name: "Some Name"}
     end
 
     test "if the element has a prefix it updates the correct field" do
       sut = %TestHandler{}
       element = %Element{name: "some:prefixed", text: "Some Name", attributes: %{}}
-      assert ElementCollectable.cast_element(sut, element) == %TestHandler{prefixed: "Some Name"}
+
+      assert ElementCollectable.cast_attributes(sut, element) == %TestHandler{
+               prefixed: "Some Name"
+             }
     end
 
     test "allows for renaming a field" do
       sut = %TestHandler{}
       element = %Element{name: "other", text: "Some Name", attributes: %{}}
-      assert ElementCollectable.cast_element(sut, element) == %TestHandler{renamed: "Some Name"}
+
+      assert ElementCollectable.cast_attributes(sut, element) == %TestHandler{
+               renamed: "Some Name"
+             }
     end
 
     test "it can ignore elements that match on the name but don't match an attribute" do
       sut = %TestHandler{}
       element = %Element{name: "filtered", text: "Some Name", attributes: %{"kind" => "nottext"}}
-      assert ElementCollectable.cast_element(sut, element) == %TestHandler{}
+      assert ElementCollectable.cast_attributes(sut, element) == %TestHandler{}
     end
 
     test "it can extract the attribute specified from the element" do
@@ -40,7 +46,7 @@ defmodule SaxaboomTest.MapperTest do
         attributes: %{"href" => "https://some.url"}
       }
 
-      assert ElementCollectable.cast_element(sut, element) == %TestHandler{
+      assert ElementCollectable.cast_attributes(sut, element) == %TestHandler{
                extracted: "https://some.url"
              }
     end
@@ -48,14 +54,14 @@ defmodule SaxaboomTest.MapperTest do
     test "it can cast the value of the element to the type specified" do
       sut = %TestHandler{}
       element = %Element{name: "cast", text: "1.45", attributes: %{}}
-      assert ElementCollectable.cast_element(sut, element) == %TestHandler{cast: 1.45}
+      assert ElementCollectable.cast_attributes(sut, element) == %TestHandler{cast: 1.45}
     end
 
     test "it can apply a transformative function to the value of the element" do
       sut = %TestHandler{}
       element = %Element{name: "user_cast", text: "spambaz", attributes: %{}}
 
-      assert ElementCollectable.cast_element(sut, element) == %TestHandler{
+      assert ElementCollectable.cast_attributes(sut, element) == %TestHandler{
                user_cast: "foobar spambaz"
              }
     end
@@ -69,7 +75,7 @@ defmodule SaxaboomTest.MapperTest do
         attributes: %{"kind" => "fizzbuzz"}
       }
 
-      assert ElementCollectable.cast_element(sut, element) == %TestHandler{
+      assert ElementCollectable.cast_attributes(sut, element) == %TestHandler{
                attribute_cast: "whatever fizzbuzz"
              }
     end
@@ -83,7 +89,7 @@ defmodule SaxaboomTest.MapperTest do
         attributes: %{"some" => "attribute", "kind" => "priority"}
       }
 
-      assert ElementCollectable.cast_element(sut, element) == %TestHandler{
+      assert ElementCollectable.cast_attributes(sut, element) == %TestHandler{
                shouldbeset: "spambaz",
                shouldnotbeset: nil,
                precedence: nil
@@ -91,7 +97,7 @@ defmodule SaxaboomTest.MapperTest do
     end
   end
 
-  describe "multiple cast_element/2" do
+  describe "multiple cast_attributes/2" do
     test "it updates the correct field" do
       sut = %TestHandler{}
 
@@ -102,7 +108,7 @@ defmodule SaxaboomTest.MapperTest do
 
       resolved =
         Enum.reduce(elements, sut, fn element, st ->
-          ElementCollectable.cast_element(st, element)
+          ElementCollectable.cast_attributes(st, element)
         end)
 
       assert resolved == %TestHandler{names: ["Some Name", "Other Name"]}
@@ -118,7 +124,7 @@ defmodule SaxaboomTest.MapperTest do
 
       resolved =
         Enum.reduce(elements, sut, fn element, st ->
-          ElementCollectable.cast_element(st, element)
+          ElementCollectable.cast_attributes(st, element)
         end)
 
       assert resolved == %TestHandler{prefixed_items: ["Some Name", "Other Name"]}
@@ -134,7 +140,7 @@ defmodule SaxaboomTest.MapperTest do
 
       resolved =
         Enum.reduce(elements, sut, fn element, st ->
-          ElementCollectable.cast_element(st, element)
+          ElementCollectable.cast_attributes(st, element)
         end)
 
       assert resolved == %TestHandler{renames: ["Some Name", "Other Name"]}
@@ -150,7 +156,7 @@ defmodule SaxaboomTest.MapperTest do
 
       resolved =
         Enum.reduce(elements, sut, fn element, st ->
-          ElementCollectable.cast_element(st, element)
+          ElementCollectable.cast_attributes(st, element)
         end)
 
       assert resolved == %TestHandler{filtered_items: ["Other Name"]}
@@ -174,7 +180,7 @@ defmodule SaxaboomTest.MapperTest do
 
       resolved =
         Enum.reduce(elements, sut, fn element, st ->
-          ElementCollectable.cast_element(st, element)
+          ElementCollectable.cast_attributes(st, element)
         end)
 
       assert resolved == %TestHandler{extracts: ["https://some.url", "https://someother.url"]}
@@ -190,7 +196,7 @@ defmodule SaxaboomTest.MapperTest do
 
       resolved =
         Enum.reduce(elements, sut, fn element, st ->
-          ElementCollectable.cast_element(st, element)
+          ElementCollectable.cast_attributes(st, element)
         end)
 
       assert resolved == %TestHandler{casts: [1.45, 2.56]}
@@ -206,7 +212,7 @@ defmodule SaxaboomTest.MapperTest do
 
       resolved =
         Enum.reduce(elements, sut, fn element, st ->
-          ElementCollectable.cast_element(st, element)
+          ElementCollectable.cast_attributes(st, element)
         end)
 
       assert resolved == %TestHandler{user_casts: ["foobar spambaz", "foobar blehblah"]}
@@ -230,7 +236,7 @@ defmodule SaxaboomTest.MapperTest do
 
       resolved =
         Enum.reduce(elements, sut, fn element, st ->
-          ElementCollectable.cast_element(st, element)
+          ElementCollectable.cast_attributes(st, element)
         end)
 
       assert resolved == %TestHandler{
@@ -256,7 +262,7 @@ defmodule SaxaboomTest.MapperTest do
 
       resolved =
         Enum.reduce(elements, sut, fn element, st ->
-          ElementCollectable.cast_element(st, element)
+          ElementCollectable.cast_attributes(st, element)
         end)
 
       assert resolved == %TestHandler{

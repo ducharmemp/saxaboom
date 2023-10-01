@@ -48,6 +48,7 @@ defmodule Saxaboom.State do
     state =
       state
       |> push_element(%Element{name: element_name, attributes: attributes})
+      |> update_handler()
       |> maybe_push_handler()
 
     {:noreply, state}
@@ -57,7 +58,6 @@ defmodule Saxaboom.State do
   def handle_cast({:end_element, _element_name}, state) do
     state =
       state
-      |> update_handler()
       |> maybe_pop_handler()
       |> pop_element()
 
@@ -71,8 +71,6 @@ defmodule Saxaboom.State do
           current_handler: current_handler
         } = state
       ) do
-    current_element = %{current_element | text: characters}
-
     current_handler =
       ElementCollectable.cast_characters(current_handler, current_element, characters)
 
@@ -119,7 +117,10 @@ defmodule Saxaboom.State do
   defp update_handler(
          %{current_handler: current_handler, current_element: current_element} = state
        ) do
-    %{state | current_handler: ElementCollectable.cast_element(current_handler, current_element)}
+    %{
+      state
+      | current_handler: ElementCollectable.cast_attributes(current_handler, current_element)
+    }
   end
 
   defp maybe_pop_handler(
@@ -135,6 +136,7 @@ defmodule Saxaboom.State do
 
     if current_depth == introduced_depth do
       {{parent_introduced_depth, parent_handler}, handler_stack} = Stack.pop(handler_stack)
+
       parent_handler =
         ElementCollectable.cast_nested(parent_handler, current_element, current_handler)
 

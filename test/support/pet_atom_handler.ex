@@ -5,7 +5,7 @@ defimpl Saxaboom.ElementCollectable, for: List do
     collectable ++ [characters]
   end
 
-  def cast_element(collectable, element), do: [element | collectable]
+  def cast_attributes(collectable, element), do: [element | collectable]
   def cast_nested(collectable, _element, nested), do: collectable ++ [nested]
 end
 
@@ -84,8 +84,8 @@ defmodule Support.AtomEntry do
   end
 
   def serialize_to_string(tree) do
-    dbg(tree)
-    Saxy.encode!(recurse_build(tree))
+    ""
+    # Saxy.encode!(recurse_build(tree))
   end
 end
 

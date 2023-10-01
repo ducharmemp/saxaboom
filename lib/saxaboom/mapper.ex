@@ -69,78 +69,64 @@ defmodule Saxaboom.Mapper do
           |> Enum.find(&Saxaboom.FieldMetadata.matches_attributes?(&1, element))
         end
 
-        defp update_field(mapper, nil, element) do
-          mapper
-        end
-
-        defp update_field(
-               mapper,
-               %{kind: :element, cast: cast_type} = definition,
-               %Element{} = element
-             ) do
-          extracted = Access.get(element.attributes, definition.value, element.text)
-          cast = Caster.cast_value(cast_type, extracted)
-          %{mapper | definition.field_name => cast}
-        end
-
-        defp update_field(
-               mapper,
-               %{kind: :elements, cast: cast_type} = definition,
-               %Element{} = element
-             ) do
-          extracted = Access.get(element.attributes, definition.value, element.text)
-          cast = Caster.cast_value(cast_type, extracted)
-          current = Map.get(mapper, definition.field_name) || []
-          %{mapper | definition.field_name => current ++ [cast]}
-        end
-
-        defp update_field(mapper, %{kind: :element, cast: cast} = definition, value) do
-          cast = Caster.cast_value(cast, value)
-          %{mapper | definition.field_name => cast}
-        end
-
-        defp update_field(
-               mapper,
-               %{kind: :elements, field_name: field_name, cast: cast} = definition,
-               value
-             ) do
-          current = Map.get(mapper, field_name) || []
-          cast = Caster.cast_value(cast, value)
-          %{mapper | definition.field_name => current ++ [value]}
-        end
-
         def cast_characters(
               mapper,
-              %Element{name: name, attributes: attributes} = element,
+              element,
               characters
             ) do
-          # definition = element_definition(mapper, element)
-          # update_field(mapper, definition, element)
-          mapper
+          definition = element_definition(mapper, element)
+          extracted = extract_value(element, definition) || characters
+          cast = cast_value(extracted, definition)
+          update_field(mapper, definition, cast)
         end
 
-        def cast_element(
+        def cast_attributes(
               mapper,
-              %Element{name: name, attributes: attributes} = element
+              element
             ) do
           definition = element_definition(mapper, element)
-          update_field(mapper, definition, element)
+          extracted = extract_value(element, definition)
+          cast = cast_value(extracted, definition)
+          update_field(mapper, definition, cast)
         end
 
         def cast_nested(
               mapper,
-              %Element{name: name, attributes: attributes} = element,
+              element,
               nested
             ) do
           definition = element_definition(mapper, element)
-          update_field(mapper, definition, nested)
+          cast = cast_value(nested, definition)
+          update_field(mapper, definition, cast)
+        end
+
+        # No definition, can't do anything
+        defp extract_value(element, nil), do: nil
+        # We don't want anything out of the element tag
+        defp extract_value(element, %{value: nil}), do: nil
+        # We want something out of the element tag
+        defp extract_value(element, %{value: value}),
+          do: Access.get(element.attributes, definition.value, nil)
+
+        defp cast_value(value, nil), do: nil
+        defp cast_value(nil, definition), do: nil
+        defp cast_value(value, %{cast: cast}), do: Caster.cast_value(cast, value)
+
+        defp update_field(mapper, definition, nil), do: mapper
+
+        defp update_field(mapper, %{kind: :element, field_name: field_name}, value),
+          do: %{mapper | field_name => value}
+
+        defp update_field(mapper, %{kind: :elements, field_name: field_name}, value) do
+          current = Map.get(mapper, field_name) || []
+          %{mapper | field_name => current ++ [value]}
         end
       end
     end
   end
 
   @doc """
-  Defines a structure that can match against 0 or 1 elements in the given document.
+  Defines a structure field that can match against 0 or 1 elements in the given document.
   """
   defmacro element(name, opts \\ []) do
     quote do
@@ -150,9 +136,19 @@ defmodule Saxaboom.Mapper do
   end
 
   @doc """
-  Defines a structure that can match against 0 or N elements in the given document.
+  Defines a structure field that can match against 0 or N elements in the given document.
   """
   defmacro elements(name, opts \\ []) do
+    quote do
+      metadata = Saxaboom.FieldMetadata.from(unquote(name), unquote(opts), :elements)
+      Module.put_attribute(__MODULE__, :xml_sax_element_metadata, metadata)
+    end
+  end
+
+  @doc """
+  Defines a structure field that matches an attribute in the top-level tag defining the current mapper
+  """
+  defmacro attribute(name, opts \\ []) do
     quote do
       metadata = Saxaboom.FieldMetadata.from(unquote(name), unquote(opts), :elements)
       Module.put_attribute(__MODULE__, :xml_sax_element_metadata, metadata)
