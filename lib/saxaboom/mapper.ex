@@ -56,6 +56,7 @@ defmodule Saxaboom.Mapper do
     end
   end
 
+  # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   defp protocol_impl do
     quote do
       def matchers do
@@ -105,7 +106,7 @@ defmodule Saxaboom.Mapper do
         # We don't want anything out of the element tag
         defp extract_value(element, %{value: nil}), do: nil
         # We want something out of the element tag
-        defp extract_value(element, %{value: value}),
+        defp extract_value(%{attr}, %{value: value}),
           do: Access.get(element.attributes, definition.value, nil)
 
         defp cast_value(value, nil), do: nil
