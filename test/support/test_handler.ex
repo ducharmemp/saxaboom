@@ -23,6 +23,7 @@ defmodule Support.TestHandler do
     element :precedence, as: :shouldbeset, with: [some: "attribute", kind: "priority"]
     element :precedence, as: :shouldnotbeset, with: [some: "attribute"]
     element :precedence
+    element :defaulted, default: 123
 
     elements :name_item, as: :names
     elements :other_item, as: :renames

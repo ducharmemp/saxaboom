@@ -65,6 +65,15 @@ defmodule SaxaboomTest do
             )
         end
       end
+
+      test "deal with mismatched tags for #{adapter}" do
+        assert_raise MatchError, ~r"no match of right hand side value", fn ->
+          {:ok, _} =
+            Saxaboom.parse(read_xml_fixture("unclosed_tags"), %Support.JunkHandler{},
+              adapter: unquote(adapter)
+            )
+        end
+      end
     end
   end
 end

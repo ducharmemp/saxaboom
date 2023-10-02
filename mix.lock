@@ -8,6 +8,8 @@
   "erlsom": {:hex, :erlsom, "1.5.1", "c8fe2babd33ff0846403f6522328b8ab676f896b793634cfe7ef181c05316c03", [:rebar3], [], "hexpm", "7965485494c5844dd127656ac40f141aadfa174839ec1be1074e7edf5b4239eb"},
   "file_system": {:hex, :file_system, "0.2.10", "fb082005a9cd1711c05b5248710f8826b02d7d1784e7c3451f9c1231d4fc162d", [:mix], [], "hexpm", "41195edbfb562a593726eda3b3e8b103a309b733ad25f3d642ba49696bf715dc"},
   "jason": {:hex, :jason, "1.4.1", "af1504e35f629ddcdd6addb3513c3853991f694921b1b9368b0bd32beb9f1b63", [:mix], [{:decimal, "~> 1.0 or ~> 2.0", [hex: :decimal, repo: "hexpm", optional: true]}], "hexpm", "fbb01ecdfd565b56261302f7e1fcc27c4fb8f32d56eab74db621fc154604a7a1"},
+  "mox": {:hex, :mox, "0.1.0", "59fedec1161faa76143354824f7f8e7d69d88fc114684e569a1229c7e31f88c5", [:mix], [], "hexpm", "c4abf7706dd26e0fa3e191cb85b5129c7b48bcfe4079d7d669aaad545762443c"},
+  "promox": {:hex, :promox, "0.1.4", "6a833b8b954ecf534ad5ccc9c74550b636e996f433f75ced2cadfd1a15e10d0c", [:mix], [], "hexpm", "7e0a54fb183fb705f8711255d3f5beb3519284b69ccf468bed3dc9c1e661f455"},
   "saxy": {:hex, :saxy, "1.5.0", "0141127f2d042856f135fb2d94e0beecda7a2306f47546dbc6411fc5b07e28bf", [:mix], [], "hexpm", "ea7bb6328fbd1f2aceffa3ec6090bfb18c85aadf0f8e5030905e84235861cf89"},
   "statistex": {:hex, :statistex, "1.0.0", "f3dc93f3c0c6c92e5f291704cf62b99b553253d7969e9a5fa713e5481cd858a5", [:mix], [], "hexpm", "ff9d8bee7035028ab4742ff52fc80a2aa35cece833cf5319009b52f1b5a86c27"},
   "stream_split": {:hex, :stream_split, "0.1.7", "2d3fd1fd21697da7f91926768d65f79409086052c9ec7ae593987388f52425f8", [:mix], [], "hexpm", "1dc072ff507a64404a0ad7af90df97096183fee8eeac7b300320cea7c4679147"},

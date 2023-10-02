@@ -26,10 +26,11 @@ defmodule Saxaboom.MixProject do
   defp deps do
     [
       {:erlsom, "~> 1.5", optional: true},
-      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.3", only: [:dev], runtime: false},
       {:saxy, "~> 1.5", optional: true},
-      {:stream_split, "~> 0.1.7"}
+      {:stream_split, "~> 0.1.7"},
+      {:mox, "~> 0.1.0", only: :test},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.4", only: [:dev], runtime: false}
     ]
   end
 

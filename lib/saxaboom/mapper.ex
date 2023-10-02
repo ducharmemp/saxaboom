@@ -43,7 +43,7 @@ defmodule Saxaboom.Mapper do
     quote do
       defstruct @xml_sax_element_metadata
                 |> Enum.reverse()
-                |> Enum.map(fn metadata -> metadata.field_name end)
+                |> Enum.map(fn metadata -> {metadata.field_name, metadata.default} end)
                 |> Enum.uniq()
 
       Module.put_attribute(

@@ -1,82 +1,123 @@
-# defmodule Saxaboom.StateTest do
-#   use ExUnit.Case, async: true
-#   doctest Saxaboom.State
+defmodule Saxaboom.StateTest do
+  use ExUnit.Case, async: true
+  doctest Saxaboom.State
 
-#   alias Saxaboom.Element
-#   alias Saxaboom.State
-#   alias Support.TestHandler
+  alias Saxaboom.State
 
-#   describe "handle_cast/2 :start_element" do
-#     test "when a nested handler is not necessary it does not reply to the caller and returns the handler stack as is" do
-#       handler_stack = [{0, %TestHandler{}}]
+  describe "start_element/3" do
+    test "it updates the current handler" do
+      state = State.initialize(%Support.SinkHandler{})
 
-#       assert {:noreply,
-#               %{
-#                 element_stack: [%Element{name: "name", attributes: %{}}],
-#                 handler_stack: ^handler_stack
-#               }} =
-#                State.handle_cast({:start_element, "name", %{}}, %{
-#                  element_stack: [],
-#                  handler_stack: handler_stack
-#                })
-#     end
+      assert %{current_handler: %{attributes: %{some: "attribute"}}} =
+               State.start_element(state, "test", %{some: "attribute"})
+    end
 
-#     test "when a nested handler is necessary it does not reply to the caller and returns an updated handler stack" do
-#       handler_stack = [{0, %TestHandler{}}]
+    test "when a nested handler is not necessary, it leaves the current handler as-is" do
+      handler = %Support.SinkHandler{}
+      state = State.initialize(handler)
 
-#       assert {:noreply,
-#               %{
-#                 element_stack: [%Element{name: "nested", attributes: %{}}],
-#                 handler_stack: [{1, %Support.Nested{}}, {0, %TestHandler{}}]
-#               }} =
-#                State.handle_cast({:start_element, "nested", %{}}, %{
-#                  element_stack: [],
-#                  handler_stack: handler_stack
-#                })
-#     end
-#   end
+      assert %{current_handler: ^handler, handler_stack: []} =
+               State.start_element(state, "test", %{})
+    end
 
-#   describe "handle_cast/2 :end_element" do
-#     test "when terminating an unknown element, it does not reply to the caller and returns the handler stack as is" do
-#       handler_stack = [{0, %TestHandler{}}]
+    test "when a nested handler is necessary, it updates the nested handler" do
+      nested = %Support.SinkHandler{}
+      handler = %Support.SinkHandler{element_definition: %{into: nested}}
+      state = State.initialize(handler)
 
-#       assert {:noreply, %{element_stack: [], handler_stack: ^handler_stack}} =
-#                State.handle_cast({:end_element, "unknown"}, %{
-#                  element_stack: [%Element{name: "unknown", attributes: %{}}],
-#                  handler_stack: handler_stack
-#                })
-#     end
+      assert %{
+               current_handler: %Support.SinkHandler{
+                 element_definition: nil,
+                 attributes: %{some: "attribute"}
+               }
+             } = State.start_element(state, "test", %{some: "attribute"})
+    end
 
-#     test "when terminating a known element, it updates the given handler" do
-#       handler_stack = [{0, %TestHandler{}}]
+    test "when a nested handler is necessary, it pushes the previous handler onto the stack" do
+      nested = %Support.SinkHandler{}
+      handler = %Support.SinkHandler{element_definition: %{into: nested}}
+      state = State.initialize(handler)
 
-#       assert {:noreply, %{element_stack: [], handler_stack: [{0, %TestHandler{name: "foobar"}}]}} =
-#                State.handle_cast({:end_element, "name"}, %{
-#                  element_stack: [%Element{name: "name", text: "foobar", attributes: %{}}],
-#                  handler_stack: handler_stack
-#                })
-#     end
+      assert %{handler_stack: [{-1, ^handler}]} =
+               State.start_element(state, "test", %{some: "attribute"})
+    end
 
-#     test "when terminating a nested element, it removes the handler from the stack" do
-#       handler_stack = [{1, %Support.Nested{}}, {0, %TestHandler{}}]
+    test "it updates the current element" do
+      assert %{current_element: %{name: "test2"}} =
+               State.initialize(%Support.SinkHandler{})
+               |> State.start_element("test", %{})
+               |> State.start_element("test2", %{})
+    end
 
-#       assert {:noreply, %{element_stack: [], handler_stack: [{0, %TestHandler{}}]}} =
-#                State.handle_cast({:end_element, "nested"}, %{
-#                  element_stack: [%Element{name: "nested", attributes: %{}}],
-#                  handler_stack: handler_stack
-#                })
-#     end
-#   end
+    test "it pushes the previous element onto the stack" do
+      assert %{element_stack: [%{name: "test"}, %{name: "document"}]} =
+               State.initialize(%Support.SinkHandler{})
+               |> State.start_element("test", %{})
+               |> State.start_element("test2", %{})
+    end
+  end
 
-#   describe "handle_call/2 :finish" do
-#     test "replies to the caller and gets the top of the stack" do
-#       handler_stack = [{0, %TestHandler{}}]
+  describe "end_element/2" do
+    test "when closing an element that required a nested handler, it pops the nested handler off the stack" do
+      nested = %Support.SinkHandler{}
+      handler = %Support.SinkHandler{element_definition: %{into: nested}}
 
-#       assert {:reply, %TestHandler{}, []} =
-#                State.handle_call({:finish}, nil, %{
-#                  element_stack: [],
-#                  handler_stack: handler_stack
-#                })
-#     end
-#   end
-# end
+      assert %{handler_stack: []} =
+               State.initialize(handler)
+               |> State.start_element("test", %{some: "attribute"})
+               |> State.end_element("test")
+    end
+
+    test "when closing an element that required a nested handler, it calls the handler to receive a nested struct" do
+      nested = %Support.SinkHandler{}
+      handler = %Support.SinkHandler{element_definition: %{into: nested}}
+
+      assert %{current_handler: %{nested: ^nested}} =
+               State.initialize(handler)
+               |> State.start_element("test", %{})
+               |> State.end_element("test")
+    end
+
+    test "when closing an element, it pops the parent element off the stack" do
+      handler = %Support.SinkHandler{}
+
+      assert %{element_stack: [%{name: "document"}]} =
+               State.initialize(handler)
+               |> State.start_element("test", %{some: "attribute"})
+               |> State.start_element("test2", %{})
+               |> State.end_element("test2")
+    end
+
+    test "when closing an element, it updates the current element" do
+      handler = %Support.SinkHandler{}
+
+      assert %{current_element: %{name: "test"}} =
+               State.initialize(handler)
+               |> State.start_element("test", %{some: "attribute"})
+               |> State.start_element("test2", %{})
+               |> State.end_element("test2")
+    end
+  end
+
+  describe "characters/2" do
+    test "it updates the current handler" do
+      handler = %Support.SinkHandler{}
+
+      assert %{current_handler: %{characters: "test characters"}} =
+        State.initialize(handler)
+        |> State.start_element("test", %{})
+        |> State.characters("test characters")
+    end
+  end
+
+  describe "finish/1" do
+    test "it returns the current handler" do
+      handler = %Support.SinkHandler{}
+
+      assert %Support.SinkHandler{attributes: %{some: "attributes"}} =
+        State.initialize(handler)
+        |> State.start_element("test", %{some: "attributes"})
+        |> State.finish()
+    end
+  end
+end

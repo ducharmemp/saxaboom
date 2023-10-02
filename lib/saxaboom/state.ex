@@ -37,7 +37,7 @@ defmodule Saxaboom.State do
     current_handler =
       ElementCollectable.cast_characters(current_handler, current_element, characters)
 
-    %{self | current_element: current_element, current_handler: current_handler}
+    %{self | current_handler: current_handler}
   end
 
   def finish(%{current_handler: current_handler}) do

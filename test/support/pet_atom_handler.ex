@@ -22,7 +22,9 @@ defmodule Support.AtomEntry do
     element :name, as: :author
 
     element :content,
-      with: [type: "xhtml"]
+      with: [type: "xhtml"],
+      default: "",
+      cast: &String.trim/1
 
     element :summary
     element :enclosure, as: :image, value: :href

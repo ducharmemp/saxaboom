@@ -3,7 +3,7 @@ defmodule Saxaboom.FieldMetadata do
 
   alias Saxaboom.Element
 
-  defstruct [:field_name, :element_name, :value, :with, :with_keys, :cast, :into, :kind]
+  defstruct [:field_name, :element_name, :value, :with, :with_keys, :cast, :into, :kind, :default]
 
   def from(name, opts, kind) do
     %__MODULE__{
@@ -27,7 +27,8 @@ defmodule Saxaboom.FieldMetadata do
         |> Enum.to_list(),
       cast: Access.get(opts, :cast, :noop),
       into: Access.get(opts, :into),
-      kind: kind
+      kind: kind,
+      default: Access.get(opts, :default)
     }
   end
 
