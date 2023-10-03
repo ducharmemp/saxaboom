@@ -141,7 +141,13 @@ defmodule Saxaboom.Mapper do
   """
   defmacro elements(name, opts \\ []) do
     quote do
-      metadata = Saxaboom.FieldMetadata.from(unquote(name), unquote(opts), :elements)
+      metadata =
+        Saxaboom.FieldMetadata.from(
+          unquote(name),
+          unquote(opts) |> Keyword.put(:default, []),
+          :elements
+        )
+
       Module.put_attribute(__MODULE__, :xml_sax_element_metadata, metadata)
     end
   end

@@ -13,28 +13,41 @@ defmodule Support.TestHandler do
 
   document do
     element :name
+    elements :name_item, as: :names
+
     element :other, as: :renamed
+    elements :other_item, as: :renames
+
     element :filtered, with: [kind: "text"]
+    elements :filtered_item, as: :filtered_items, with: [kind: "text"]
+
     element :extracted, value: :href
+    elements :extracted_item, as: :extracts, value: :href
+
     element :cast, cast: :float
+    elements :cast_item, as: :casts, cast: :float
+
     element :user_cast, cast: &__MODULE__.add_foobar/1
+    elements :user_cast_item, as: :user_casts, cast: &__MODULE__.add_foobar/1
+
     element :attribute_cast, value: :kind, cast: &__MODULE__.add_whatever/1
+
+    elements :attribute_cast_item,
+      as: :attribute_casts,
+      value: :kind,
+      cast: &__MODULE__.add_whatever/1
+
     element :"some:prefixed", as: :prefixed
+    elements :"some:prefixeditem", as: :prefixed_items
+
     element :precedence, as: :shouldbeset, with: [some: "attribute", kind: "priority"]
     element :precedence, as: :shouldnotbeset, with: [some: "attribute"]
     element :precedence
-    element :defaulted, default: 123
-
-    elements :name_item, as: :names
-    elements :other_item, as: :renames
-    elements :filtered_item, as: :filtered_items, with: [kind: "text"]
-    elements :extracted_item, as: :extracts, value: :href
-    elements :cast_item, as: :casts, cast: :float
-    elements :user_cast_item, as: :user_casts, cast: &__MODULE__.add_foobar/1
-    elements :"some:prefixeditem", as: :prefixed_items
     elements :precedence_item, as: :shouldbeset_list, with: [some: "attribute", kind: "priority"]
     elements :precedence_item, as: :shouldnotbeset_list, with: [some: "attribute"]
     elements :precedence_item
+
+    element :defaulted, default: 123
 
     elements :attribute_cast_item,
       as: :attribute_casts,

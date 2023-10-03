@@ -13,7 +13,7 @@ defmodule Benchmark do
       inputs: [anxiety: File.read!("data/anxiety.rss")],
       formatters: [
         Benchee.Formatters.Console
-      ],
+      ]
     )
   end
 end

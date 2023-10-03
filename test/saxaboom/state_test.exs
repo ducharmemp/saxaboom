@@ -104,9 +104,9 @@ defmodule Saxaboom.StateTest do
       handler = %Support.SinkHandler{}
 
       assert %{current_handler: %{characters: "test characters"}} =
-        State.initialize(handler)
-        |> State.start_element("test", %{})
-        |> State.characters("test characters")
+               State.initialize(handler)
+               |> State.start_element("test", %{})
+               |> State.characters("test characters")
     end
   end
 
@@ -115,9 +115,9 @@ defmodule Saxaboom.StateTest do
       handler = %Support.SinkHandler{}
 
       assert %Support.SinkHandler{attributes: %{some: "attributes"}} =
-        State.initialize(handler)
-        |> State.start_element("test", %{some: "attributes"})
-        |> State.finish()
+               State.initialize(handler)
+               |> State.start_element("test", %{some: "attributes"})
+               |> State.finish()
     end
   end
 end

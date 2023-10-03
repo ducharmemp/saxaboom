@@ -5,6 +5,12 @@ defmodule Saxaboom.Utils.CasterTest do
   alias Saxaboom.Utils.Caster
 
   describe "cast_value/2" do
+    test "custom function casting" do
+      Caster.cast_value(fn value -> send(self(), {:called, value}) end, "value")
+
+      assert_received {:called, "value"}
+    end
+
     test "string casting" do
       # Noop
       assert Caster.cast_value(:string, "123") == "123"
@@ -34,11 +40,11 @@ defmodule Saxaboom.Utils.CasterTest do
     end
 
     test "boolean casting" do
-      for val <- ["1", "on", "true", "yes", "y", "t"] do
+      for val <- ["1", "on", "true", "yes", "y", "t", 1, %{}, []] do
         assert Caster.cast_value(:boolean, val) == true
       end
 
-      for val <- ["garbage", "f", "whatever", "off", "Norway"] do
+      for val <- ["garbage", "f", "whatever", "off", "Norway", "no", "0"] do
         assert Caster.cast_value(:boolean, val) == false
       end
     end
