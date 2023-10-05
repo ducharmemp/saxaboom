@@ -128,6 +128,18 @@ defmodule Saxaboom.Mapper do
 
   @doc """
   Defines a structure field that can match against 0 or 1 elements in the given document.
+
+  Arguments:
+    - `name` is the name of the tag to match against, case sensitive
+
+  Options:
+    - `:as` provides the name to be used on the struct when parsing, defaults to the name of the tag
+    - `:value` identifies the property to extract from the tag. Can be an attribute name, defaults to the text content of the node
+    - `:with` is a keyword list of attributes and expected attribute values. The `:with` must perfectly match against a subset of the node attributes
+    - `:cast` is a symbol or a user-defined function to transform the extracted `:value`, see `Saxaboom.Utils.Caster` for more details.
+    - `:into` is another mapper or type that implements the `Saxaboom.ElementCollectable` protocol. Child nodes will be parsed into this structure until the parser has encountered the closing tag of the node that began the `:into`.
+    - `:default` is the default value of the node, if no tags are parsed. `nil` by default
+
   """
   defmacro element(name, opts \\ []) do
     quote do
@@ -137,7 +149,19 @@ defmodule Saxaboom.Mapper do
   end
 
   @doc """
-  Defines a structure field that can match against 0 or N elements in the given document.
+  Defines a structure field that can match against 0 or N elements in the given document. The list will be parsed and extracted
+  in document order.
+  Defaults to an empty list.
+
+  Arguments:
+    - `name` is the name of the tag to match against, case sensitive
+
+  Options:
+    - `:as` provides the name to be used on the struct when parsing, defaults to the name of the tag
+    - `:value` identifies the property to extract from the tag. Can be an attribute name, defaults to the text content of the node
+    - `:with` is a keyword list of attributes and expected attribute values. The `:with` must perfectly match against a subset of the node attributes
+    - `:cast` is a symbol or a user-defined function to transform the extracted `:value`, see `Saxaboom.Utils.Caster` for more details.
+    - `:into` is another mapper or type that implements the `Saxaboom.ElementCollectable` protocol. Child nodes will be parsed into this structure until the parser has encountered the closing tag of the node that began the `:into`.
   """
   defmacro elements(name, opts \\ []) do
     quote do

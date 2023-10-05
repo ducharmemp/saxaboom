@@ -135,8 +135,6 @@ Saxaboom maintains a few stacks to maintain state while walking down the tree, a
 - `element` and `elements` do not care about the depth of a given item within the tree. If they encounter a tag that matches something in the current `Mapper`, it'll be parsed into the type. This results in an auto-flattening of the tree, which is desirable in a lot of cases. If this is not desirable, consider defining a few nested `Mapper` types.
 - `into` types receive the tag that starts the nested section
   - This is why we could extract the `id` from the `book` tag within the `Book` struct in the example above
-- Mixed content is untested, it probably won't work right now. This includes characters mixed with CDATA sections
 - The default behavior of both the `element` and `elements` types is to extract the characters present between the opening and closing tags if a `value` definition is not present
-- The default behavior is to leave the value extracted from a tag as a `string` unless otherwise specified by a `cast` function.
-
+- The default behavior is to leave the value extracted from a tag as-is unless otherwise specified by a `cast` function.
 

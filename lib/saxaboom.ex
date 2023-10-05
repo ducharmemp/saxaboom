@@ -17,6 +17,9 @@ defmodule Saxaboom do
        - Defaults to `xmerl`
     - `parser_options`: a list of options to pass down to the chosen adapter. Refer to the parser documentation for more information.
 
+  Returns:
+    - A tuple containing the status and the parsed structure, optionally error information surfaced from the underlying parser
+
   """
   def parse(xml, into, options \\ []) do
     parser =
