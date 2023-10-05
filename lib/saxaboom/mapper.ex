@@ -3,7 +3,7 @@ defmodule Saxaboom.Mapper do
   The main user interface for defining mapping definitions.
 
   `Saxaboom.Mapper` exposes a micro-DSL for describing the expected structure of a given document. There are three
-  components to the `Saxaboom.Mapper` interface: `
+  components to the `Saxaboom.Mapper` interface:
 
   - `document`: a directive describing the "envelope" of the incoming document (read: the whole document). This exposes the internal DSL.
   - `element`: a directive to match zero to one element and collect into a single struct field
