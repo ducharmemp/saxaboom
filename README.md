@@ -138,3 +138,7 @@ Saxaboom maintains a few stacks to maintain state while walking down the tree, a
 - The default behavior of both the `element` and `elements` types is to extract the characters present between the opening and closing tags if a `value` definition is not present
 - The default behavior is to leave the value extracted from a tag as-is unless otherwise specified by a `cast` function.
 
+
+## Benchmarks
+
+Tests were run using `MIX_ENV=prod mix run bench.exs` in the `bench` directory.

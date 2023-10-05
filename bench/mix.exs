@@ -22,6 +22,7 @@ defmodule Bench.MixProject do
   defp deps do
     [
       {:benchee, "~> 1.0"},
+      {:benchee_markdown, "~> 0.3"},
       {:saxaboom, path: "../"},
       {:saxy, "~> 1.5"},
       {:erlsom, "~> 1.5"}

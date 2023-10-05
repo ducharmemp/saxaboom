@@ -1,9 +1,9 @@
 defmodule Benchmark do
   def main() do
     bechmark = %{
-      "saxaboom saxy" => &Saxaboom.parse(&1, %ITunesRSS{}, adapter: :saxy),
-      "saxaboom xmerl" => &Saxaboom.parse(&1, %ITunesRSS{}, adapter: :xmerl),
-      "saxaboom erlsom" => &Saxaboom.parse(&1, %ITunesRSS{}, adapter: :erlsom),
+      "saxy" => &Saxaboom.parse(&1, %ITunesRSS{}, adapter: :saxy),
+      "xmerl" => &Saxaboom.parse(&1, %ITunesRSS{}, adapter: :xmerl),
+      "erlsom" => &Saxaboom.parse(&1, %ITunesRSS{}, adapter: :erlsom),
     }
 
     Benchee.run(bechmark,
@@ -12,7 +12,8 @@ defmodule Benchmark do
       memory_time: 1,
       inputs: [anxiety: File.read!("data/anxiety.rss")],
       formatters: [
-        Benchee.Formatters.Console
+        Benchee.Formatters.Console,
+        {Benchee.Formatters.Markdown, file: "../BENCH.md"}
       ]
     )
   end
