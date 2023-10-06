@@ -6,6 +6,7 @@ set -eou pipefail
 mix format --check-formatted
 mix credo
 mix test
+grep -q "$VERSION" CHANGELOG.md || (echo "Make sure that the release notes are up to date" && false)
 
 VERSION=$1
 sed -i "s/@version .*/@version \"$VERSION\"/g" mix.exs
