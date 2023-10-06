@@ -14,7 +14,7 @@ defmodule Saxaboom.MixProject do
       deps: deps(),
       elixirc_paths: elixirc_paths(Mix.env()),
       test_coverage: test_coverage(),
-      source_url: "https://github.com/ducharmemp/saxaboom",
+      source_url: "https://github.com/ducharmemp/saxaboom"
     ]
   end
 
