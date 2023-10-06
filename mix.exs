@@ -1,6 +1,8 @@
 defmodule Saxaboom.MixProject do
   use Mix.Project
 
+  @version "0.1.0"
+
   def project do
     [
       app: :saxaboom,
@@ -11,6 +13,7 @@ defmodule Saxaboom.MixProject do
       start_permanent: Mix.env() == :prod,
       description: description(),
       package: package(),
+      docs: docs(),
       deps: deps(),
       elixirc_paths: elixirc_paths(Mix.env()),
       test_coverage: test_coverage(),
@@ -30,6 +33,20 @@ defmodule Saxaboom.MixProject do
     Saxaboom is a data mapper that leverages SAX to extract information from documents, focused on low overhead and
     developer happiness.
     """
+  end
+
+  defp docs() do
+    [
+      extras: [
+        "CHANGELOG.md",
+        {:LICENSE, [title: "License"]},
+        "README.md"
+      ],
+      main: "readme",
+      source_url: "https://github.com/ducharmemp/saxaboom",
+      source_ref: "v#{@version}",
+      skip_undefined_reference_warnings_on: ["CHANGELOG.md"]
+    ]
   end
 
   defp package() do
