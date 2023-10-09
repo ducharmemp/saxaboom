@@ -141,4 +141,4 @@ Saxaboom maintains a few stacks to maintain state while walking down the tree, a
 
 ## Benchmarks
 
-Tests were run using `MIX_ENV=prod mix run bench.exs` in the `bench` directory.
+Tests were run using `MIX_ENV=prod mix run bench.exs` in the `bench` directory. See [BENCH.md](BENCH.md) for details.

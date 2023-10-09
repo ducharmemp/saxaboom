@@ -40,7 +40,8 @@ defmodule Saxaboom.MixProject do
       extras: [
         "CHANGELOG.md",
         {:LICENSE, [title: "License"]},
-        "README.md"
+        "README.md",
+        "BENCH.md"
       ],
       main: "readme",
       source_url: "https://github.com/ducharmemp/saxaboom",
