@@ -116,6 +116,9 @@ library, a good place to start would be to modify the `Book` structure to remove
 },
 ```
 
+## Mapping and definitions
+See [element](https://hexdocs.pm/saxaboom/Saxaboom.Mapper.html#element/2) and [elements](https://hexdocs.pm/saxaboom/Saxaboom.Mapper.html#elements/2) for details on arguments.
+
 ## Caveats and Security
 
 ### On security for XML
