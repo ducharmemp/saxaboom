@@ -14,6 +14,5 @@ defmodule Bookstore do
   """
   def list_books(fname) do
     Saxaboom.parse(File.read!(fname), %Bookstore.Catalog{})
-    |> IO.inspect()
   end
 end

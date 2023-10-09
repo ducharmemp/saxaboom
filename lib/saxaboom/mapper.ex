@@ -58,17 +58,23 @@ defmodule Saxaboom.Mapper do
 
   # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   defp protocol_impl do
-    quote do
-      def matchers do
-        @xml_grouped_sax_element_metadata
-      end
-
+    quote unquote: false do
       defimpl Saxaboom.ElementCollectable do
-        def element_definition(mapper, %Element{name: name} = element) do
-          @for.matchers
-          |> Map.get(name, [])
-          |> Enum.find(&Saxaboom.FieldMetadata.matches_attributes?(&1, element))
-        end
+        Module.get_attribute(@for, :xml_sax_element_metadata)
+        |> Enum.reverse()
+        |> Enum.each(fn %{element_name: element_name, with: with_match} = metadata ->
+          def element_definition(
+                mapper,
+                %Element{
+                  name: unquote(element_name),
+                  attributes: unquote(Macro.escape(with_match))
+                } = element
+              ) do
+            unquote(Macro.escape(metadata))
+          end
+        end)
+
+        def element_definition(_mapper, _elem), do: nil
 
         def cast_characters(
               mapper,

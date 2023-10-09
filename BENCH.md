@@ -1,6 +1,6 @@
 Benchmark
 
-Benchmark run from 2023-10-05 02:33:07.941799Z UTC
+Benchmark run from 2023-10-09 02:17:20.575314Z UTC
 
 ## System
 
@@ -49,7 +49,7 @@ Benchmark suite executing with the following configuration:
 
 
 
-__Input: anxiety__
+__Input: anxiety_read__
 
 Run Time
 
@@ -65,29 +65,29 @@ Run Time
 
   <tr>
     <td style="white-space: nowrap">saxy</td>
-    <td style="white-space: nowrap; text-align: right">140.66</td>
-    <td style="white-space: nowrap; text-align: right">7.11 ms</td>
-    <td style="white-space: nowrap; text-align: right">&plusmn;4.15%</td>
+    <td style="white-space: nowrap; text-align: right">161.35</td>
+    <td style="white-space: nowrap; text-align: right">6.20 ms</td>
+    <td style="white-space: nowrap; text-align: right">&plusmn;5.06%</td>
+    <td style="white-space: nowrap; text-align: right">6.15 ms</td>
     <td style="white-space: nowrap; text-align: right">7.08 ms</td>
-    <td style="white-space: nowrap; text-align: right">8.07 ms</td>
   </tr>
 
   <tr>
     <td style="white-space: nowrap">erlsom</td>
-    <td style="white-space: nowrap; text-align: right">51.88</td>
-    <td style="white-space: nowrap; text-align: right">19.27 ms</td>
-    <td style="white-space: nowrap; text-align: right">&plusmn;6.46%</td>
-    <td style="white-space: nowrap; text-align: right">19.07 ms</td>
-    <td style="white-space: nowrap; text-align: right">24.65 ms</td>
+    <td style="white-space: nowrap; text-align: right">51.99</td>
+    <td style="white-space: nowrap; text-align: right">19.23 ms</td>
+    <td style="white-space: nowrap; text-align: right">&plusmn;6.22%</td>
+    <td style="white-space: nowrap; text-align: right">19.17 ms</td>
+    <td style="white-space: nowrap; text-align: right">22.68 ms</td>
   </tr>
 
   <tr>
     <td style="white-space: nowrap">xmerl</td>
-    <td style="white-space: nowrap; text-align: right">44.46</td>
-    <td style="white-space: nowrap; text-align: right">22.49 ms</td>
-    <td style="white-space: nowrap; text-align: right">&plusmn;3.88%</td>
-    <td style="white-space: nowrap; text-align: right">22.29 ms</td>
-    <td style="white-space: nowrap; text-align: right">26.27 ms</td>
+    <td style="white-space: nowrap; text-align: right">46.61</td>
+    <td style="white-space: nowrap; text-align: right">21.45 ms</td>
+    <td style="white-space: nowrap; text-align: right">&plusmn;4.69%</td>
+    <td style="white-space: nowrap; text-align: right">21.32 ms</td>
+    <td style="white-space: nowrap; text-align: right">24.17 ms</td>
   </tr>
 
 </table>
@@ -102,20 +102,20 @@ Run Time Comparison
     <th style="text-align: right">Slower</th>
   <tr>
     <td style="white-space: nowrap">saxy</td>
-    <td style="white-space: nowrap;text-align: right">140.66</td>
+    <td style="white-space: nowrap;text-align: right">161.35</td>
     <td>&nbsp;</td>
   </tr>
 
   <tr>
     <td style="white-space: nowrap">erlsom</td>
-    <td style="white-space: nowrap; text-align: right">51.88</td>
-    <td style="white-space: nowrap; text-align: right">2.71x</td>
+    <td style="white-space: nowrap; text-align: right">51.99</td>
+    <td style="white-space: nowrap; text-align: right">3.1x</td>
   </tr>
 
   <tr>
     <td style="white-space: nowrap">xmerl</td>
-    <td style="white-space: nowrap; text-align: right">44.46</td>
-    <td style="white-space: nowrap; text-align: right">3.16x</td>
+    <td style="white-space: nowrap; text-align: right">46.61</td>
+    <td style="white-space: nowrap; text-align: right">3.46x</td>
   </tr>
 
 </table>
@@ -132,17 +132,117 @@ Memory Usage
   </tr>
   <tr>
     <td style="white-space: nowrap">saxy</td>
-    <td style="white-space: nowrap">2.87 MB</td>
+    <td style="white-space: nowrap">2.73 MB</td>
     <td>&nbsp;</td>
   </tr>
     <tr>
     <td style="white-space: nowrap">erlsom</td>
-    <td style="white-space: nowrap">18.54 MB</td>
-    <td>6.46x</td>
+    <td style="white-space: nowrap">18.46 MB</td>
+    <td>6.76x</td>
   </tr>
     <tr>
     <td style="white-space: nowrap">xmerl</td>
-    <td style="white-space: nowrap">19.35 MB</td>
-    <td>6.74x</td>
+    <td style="white-space: nowrap">19.20 MB</td>
+    <td>7.03x</td>
+  </tr>
+</table>
+
+
+
+__Input: anxiety_stream__
+
+Run Time
+
+<table style="width: 1%">
+  <tr>
+    <th>Name</th>
+    <th style="text-align: right">IPS</th>
+    <th style="text-align: right">Average</th>
+    <th style="text-align: right">Devitation</th>
+    <th style="text-align: right">Median</th>
+    <th style="text-align: right">99th&nbsp;%</th>
+  </tr>
+
+  <tr>
+    <td style="white-space: nowrap">saxy</td>
+    <td style="white-space: nowrap; text-align: right">97.65</td>
+    <td style="white-space: nowrap; text-align: right">10.24 ms</td>
+    <td style="white-space: nowrap; text-align: right">&plusmn;4.34%</td>
+    <td style="white-space: nowrap; text-align: right">10.21 ms</td>
+    <td style="white-space: nowrap; text-align: right">11.30 ms</td>
+  </tr>
+
+  <tr>
+    <td style="white-space: nowrap">erlsom</td>
+    <td style="white-space: nowrap; text-align: right">47.61</td>
+    <td style="white-space: nowrap; text-align: right">21.00 ms</td>
+    <td style="white-space: nowrap; text-align: right">&plusmn;12.69%</td>
+    <td style="white-space: nowrap; text-align: right">21.20 ms</td>
+    <td style="white-space: nowrap; text-align: right">25.11 ms</td>
+  </tr>
+
+  <tr>
+    <td style="white-space: nowrap">xmerl</td>
+    <td style="white-space: nowrap; text-align: right">35.11</td>
+    <td style="white-space: nowrap; text-align: right">28.48 ms</td>
+    <td style="white-space: nowrap; text-align: right">&plusmn;14.53%</td>
+    <td style="white-space: nowrap; text-align: right">28.67 ms</td>
+    <td style="white-space: nowrap; text-align: right">40.52 ms</td>
+  </tr>
+
+</table>
+
+
+Run Time Comparison
+
+<table style="width: 1%">
+  <tr>
+    <th>Name</th>
+    <th style="text-align: right">IPS</th>
+    <th style="text-align: right">Slower</th>
+  <tr>
+    <td style="white-space: nowrap">saxy</td>
+    <td style="white-space: nowrap;text-align: right">97.65</td>
+    <td>&nbsp;</td>
+  </tr>
+
+  <tr>
+    <td style="white-space: nowrap">erlsom</td>
+    <td style="white-space: nowrap; text-align: right">47.61</td>
+    <td style="white-space: nowrap; text-align: right">2.05x</td>
+  </tr>
+
+  <tr>
+    <td style="white-space: nowrap">xmerl</td>
+    <td style="white-space: nowrap; text-align: right">35.11</td>
+    <td style="white-space: nowrap; text-align: right">2.78x</td>
+  </tr>
+
+</table>
+
+
+
+Memory Usage
+
+<table style="width: 1%">
+  <tr>
+    <th>Name</th>
+    <th style="text-align: right">Average</th>
+    <th style="text-align: right">Factor</th>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap">saxy</td>
+    <td style="white-space: nowrap">3.69 MB</td>
+    <td>&nbsp;</td>
+  </tr>
+    <tr>
+    <td style="white-space: nowrap">erlsom</td>
+    <td style="white-space: nowrap">19.29 MB</td>
+    <td>5.22x</td>
+  </tr>
+    <tr>
+    <td style="white-space: nowrap">xmerl</td>
+    <td style="white-space: nowrap">21.49 MB</td>
+    <td>5.82x</td>
   </tr>
 </table>

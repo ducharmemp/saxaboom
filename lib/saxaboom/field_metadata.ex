@@ -1,9 +1,7 @@
 defmodule Saxaboom.FieldMetadata do
   @moduledoc false
 
-  alias Saxaboom.Element
-
-  defstruct [:field_name, :element_name, :value, :with, :with_keys, :cast, :into, :kind, :default]
+  defstruct [:field_name, :element_name, :value, :with, :cast, :into, :kind, :default]
 
   def from(name, opts, kind) do
     %__MODULE__{
@@ -18,23 +16,10 @@ defmodule Saxaboom.FieldMetadata do
         (Access.get(opts, :with) || [])
         |> Enum.into(%{})
         |> Map.new(fn {key, value} -> {to_string(key), value} end),
-      with_keys:
-        (Access.get(opts, :with) || [])
-        |> Enum.into(%{})
-        |> Map.new(fn {key, value} -> {to_string(key), value} end)
-        |> Map.keys()
-        |> MapSet.new()
-        |> Enum.to_list(),
       cast: Access.get(opts, :cast, :noop),
       into: Access.get(opts, :into),
       kind: kind,
       default: Access.get(opts, :default)
     }
-  end
-
-  def matches_attributes?(metadata, %Element{attributes: attributes}) do
-    relevant_attributes = Map.take(attributes, metadata.with_keys)
-
-    relevant_attributes == metadata.with
   end
 end

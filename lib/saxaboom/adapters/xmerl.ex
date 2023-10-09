@@ -77,6 +77,15 @@ defmodule Saxaboom.Adapters.Xmerl do
     State.characters(state, to_string(characters))
   end
 
+  # def handle_event(:startCDATA, _, state), do: state
+  # def handle_event(:endCDATA, _, state), do: state
+  # def handle_event(:startDocument, _, state), do: state
+
+  # def handle_event(event, arg, state) do
+  #   dbg(event)
+  #   state
+  # end
+
   def handle_event(_event, _arg, state), do: state
 
   defp normalize_name(prefix, local_name),
