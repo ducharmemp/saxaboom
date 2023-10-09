@@ -5,11 +5,92 @@ defmodule Saxaboom.Mapper do
   `Saxaboom.Mapper` exposes a micro-DSL for describing the expected structure of a given document. There are three
   components to the `Saxaboom.Mapper` interface:
 
-  - `document`: a directive describing the "envelope" of the incoming document (read: the whole document). This exposes the internal DSL.
-  - `element`: a directive to match zero to one element and collect into a single struct field
-  - `elements`: a directive to match zero to N elements and collect in a list in the order they are encountered
+  - `document/1`: a directive describing the "envelope" of the incoming document (read: the whole document). This exposes the internal DSL.
+  - `element/2`: a directive to match zero to one element and collect into a single struct field
+  - `elements/2`: a directive to match zero to N elements and collect in a list in the order they are encountered
+
+  ## Examples
+
+  For example, the following mapper defines a bookstore catalog of books (see also: [examples](https://github.com/ducharmemp/saxaboom/tree/main/examples/bookstore)):
+
+      defmodule Book do
+        use Saxaboom.Mapper
+
+        document do
+          element :book, as: :id, value: :id
+          element :author
+          element :title
+          element :genre
+          element :price, cast: :float
+          element :publish_date, cast: &__MODULE__.parse_date/1
+          element :description
+        end
+
+        def parse_date(value), do: Date.from_iso8601(value)
+      end
+
+
+      defmodule Catalog do
+        use Saxaboom.Mapper
+
+        document do
+          elements :book, as: :books, into: %Book{}
+        end
+      end
+
+  Which intuitively maps against the following XML body:
+
+      xml = \"\"\"
+        <?xml version="1.0"?>
+        <catalog>
+          <book id="bk101">
+              <author>Gambardella, Matthew</author>
+              <title>XML Developer's Guide</title>
+              <genre>Computer</genre>
+              <price>44.95</price>
+              <publish_date>2000-10-01</publish_date>
+              <description>An in-depth look at creating applications
+              with XML.</description>
+          </book>
+        </catalog>
+        \"\"\"
+
+  Usage:
+
+      Saxaboom.parse(xml, %Catalog{})
+      #=> {:ok,
+      #  %Catalog{
+      #    books: [
+      #      %Book{
+      #        id: "bk101",
+      #        author: "Gambardella, Matthew",
+      #        title: "XML Developer's Guide",
+      #        genre: "Computer",
+      #       price: 44.95,
+      #        publish_date: {:ok, ~D[2000-10-01]},
+      #        description: "An in-depth look at creating applications\\n        with XML."
+      #      }
+      #    ]
+      #  }}
+
+
+  > #### `use Saxaboom.Mapper` {: .info}
+  >
+  > When you `use Saxaboom.Mapper`, the mapper module will import
+  > the `element/2` and `elements/2` macros into the current scope.
+
+  > #### Consolidation {: .warning}
+  >
+  > Saxaboom currently relies on dynamic dispatch via protocols, which are consolidated at compile time for a performance
+  > boost. If you'd like to use Saxaboom in iex and dynamically create `Saxaboom.Mapper`s, you should read the docs
+  > on [consolidation](https://hexdocs.pm/elixir/1.14/Protocol.html#module-consolidation) for the finer details and config
+  > options available. Turning off protocol consolidation is not generally recommended for production environments.
+
   """
 
+  @spec __using__(any) ::
+          {:import, [{:column, 7} | {:context, Saxaboom.Mapper}, ...],
+           [[{any, any}, ...] | {:__aliases__, [...], [...]}, ...]}
   @doc false
   defmacro __using__(_opts) do
     quote do
@@ -58,17 +139,23 @@ defmodule Saxaboom.Mapper do
 
   # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   defp protocol_impl do
-    quote do
-      def matchers do
-        @xml_grouped_sax_element_metadata
-      end
-
+    quote unquote: false do
       defimpl Saxaboom.ElementCollectable do
-        def element_definition(mapper, %Element{name: name} = element) do
-          @for.matchers
-          |> Map.get(name, [])
-          |> Enum.find(&Saxaboom.FieldMetadata.matches_attributes?(&1, element))
-        end
+        Module.get_attribute(@for, :xml_sax_element_metadata)
+        |> Enum.reverse()
+        |> Enum.each(fn %{element_name: element_name, with: with_match} = metadata ->
+          def element_definition(
+                mapper,
+                %Element{
+                  name: unquote(element_name),
+                  attributes: unquote(Macro.escape(with_match))
+                } = element
+              ) do
+            unquote(Macro.escape(metadata))
+          end
+        end)
+
+        def element_definition(_mapper, _elem), do: nil
 
         def cast_characters(
               mapper,

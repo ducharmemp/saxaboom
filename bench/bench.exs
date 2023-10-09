@@ -10,7 +10,7 @@ defmodule Benchmark do
       warmup: 5,
       time: 30,
       memory_time: 1,
-      inputs: [anxiety: File.read!("data/anxiety.rss")],
+      inputs: [anxiety_read: File.read!("data/anxiety.rss"), anxiety_stream: File.stream!("data/anxiety.rss")],
       formatters: [
         Benchee.Formatters.Console,
         {Benchee.Formatters.Markdown, file: "../BENCH.md"}
