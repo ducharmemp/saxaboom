@@ -74,7 +74,7 @@ end
 ```
 
 And the resulting (trunacated) output:
-```
+```elixir
 {:ok,
  %Bookstore.Catalog{
    books: [
@@ -104,7 +104,7 @@ And the resulting (trunacated) output:
 As you can see the overall structure looks good but there seems to be some extra whitespace present in the `description`. To begin playing around with the
 library, a good place to start would be to modify the `Book` structure to remove said whitespace so the first entry simply reads:
 
-```
+```elixir
 %Bookstore.Book{
   id: "bk101",
   author: "Gambardella, Matthew",
@@ -145,3 +145,15 @@ Saxaboom maintains a few stacks to maintain state while walking down the tree, a
 ## Benchmarks
 
 Tests were run using `MIX_ENV=prod mix run bench.exs` in the `bench` directory. See [BENCH.md](BENCH.md) for details.
+
+
+## Formatting
+
+If you'd like to define mappers sans parenthesis, feel free to pull in the formatter configuration:
+
+```elixir
+# my_app/.formatter.exs
+[
+  import_deps: [:saxaboom]
+]
+```

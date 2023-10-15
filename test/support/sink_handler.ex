@@ -6,6 +6,8 @@ defmodule Support.SinkHandler do
       element_definition
     end
 
+    def attribute_definitions(_element, _attribute), do: []
+
     def cast_characters(collectable, _element, characters) do
       %{collectable | characters: characters}
     end

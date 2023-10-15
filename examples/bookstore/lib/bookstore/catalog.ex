@@ -4,6 +4,6 @@ defmodule Bookstore.Catalog do
   alias Bookstore.Book
 
   document do
-    elements(:book, as: :books, into: %Book{})
+    elements :book, as: :books, into: %Book{}
   end
 end

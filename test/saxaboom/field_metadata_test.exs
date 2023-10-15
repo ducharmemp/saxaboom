@@ -14,7 +14,7 @@ defmodule Saxaboom.FieldMetadataTest do
     end
 
     test "the element name is cast to a string" do
-      assert %{element_name: "something"} = FieldMetadata.from(:something, [], :element)
+      assert %{matcher_name: "something"} = FieldMetadata.from(:something, [], :element)
     end
 
     test "the value is cast to a string if provided" do
