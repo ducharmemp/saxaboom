@@ -4,10 +4,15 @@ locals_without_parens = [
   element: 1,
   element: 2,
   elements: 1,
-  elements: 2
+  elements: 2,
+  attribute: 1,
+  attribute: 2
 ]
 
 [
   locals_without_parens: locals_without_parens,
+  export: [
+    locals_without_parens: locals_without_parens
+  ],
   inputs: ["{mix,.formatter}.exs", "{config,lib,test}/**/*.{ex,exs}"]
 ]

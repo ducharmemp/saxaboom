@@ -61,6 +61,15 @@ defmodule Support.TestHandler do
     elements :nested_item, as: :nesteds, into: %Nested{}
     elements :other_nested_item, as: :renamed_nesteds, into: %Nested{}
     elements :filtered_nested_item, as: :filtered_nesteds, into: %Nested{}, with: [kind: "text"]
+
+    attribute :test_attribute
+    attribute :test_attribute_rename, as: :renamed_attribute
+    attribute :cast_attribute, cast: &__MODULE__.add_whatever/1
+
+    attribute :same_element_1
+    attribute :same_element_2
+    attribute :same_element_3
+    attribute :same_element_4, as: :same_element_rename
   end
 
   def add_foobar(value) do

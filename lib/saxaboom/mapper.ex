@@ -8,6 +8,11 @@ defmodule Saxaboom.Mapper do
   - `document/1`: a directive describing the "envelope" of the incoming document (read: the whole document). This exposes the internal DSL.
   - `element/2`: a directive to match zero to one element and collect into a single struct field
   - `elements/2`: a directive to match zero to N elements and collect in a list in the order they are encountered
+  - `attribute/2`: a directive to match zero to one attribute and collect into a single struct field.
+
+  Please note that the `element/2` and `attribute/2` macros take a "last argument wins" approach, which is to say that
+  if an element or attribute of the same name appears later in the document, the value extracted will overwrite any previously
+  held value.
 
   ## Examples
 
@@ -113,6 +118,7 @@ defmodule Saxaboom.Mapper do
   defp prelude do
     quote do
       Module.register_attribute(__MODULE__, :xml_sax_element_metadata, accumulate: true)
+      Module.register_attribute(__MODULE__, :xml_sax_attribute_metadata, accumulate: true)
 
       import Saxaboom.Mapper
       alias Saxaboom.Element
@@ -123,16 +129,17 @@ defmodule Saxaboom.Mapper do
   defp postlude do
     quote do
       defstruct @xml_sax_element_metadata
+                |> Enum.concat(@xml_sax_attribute_metadata)
                 |> Enum.reverse()
                 |> Enum.map(fn metadata -> {metadata.field_name, metadata.default} end)
                 |> Enum.uniq()
 
       Module.put_attribute(
         __MODULE__,
-        :xml_grouped_sax_element_metadata,
-        @xml_sax_element_metadata
-        |> Enum.group_by(fn metadata -> metadata.element_name end)
-        |> Map.new(fn {key, values} -> {key, Enum.reverse(values)} end)
+        :xml_mapped_sax_attribute_metadata,
+        @xml_sax_attribute_metadata
+        |> Enum.map(fn metadata -> {metadata.matcher_name, metadata} end)
+        |> Enum.into(%{})
       )
     end
   end
@@ -143,19 +150,32 @@ defmodule Saxaboom.Mapper do
       defimpl Saxaboom.ElementCollectable do
         Module.get_attribute(@for, :xml_sax_element_metadata)
         |> Enum.reverse()
-        |> Enum.each(fn %{element_name: element_name, with: with_match} = metadata ->
+        |> Enum.each(fn %{matcher_name: matcher_name, with: with_match} = metadata ->
           def element_definition(
                 mapper,
                 %Element{
-                  name: unquote(element_name),
+                  name: unquote(matcher_name),
                   attributes: unquote(Macro.escape(with_match))
-                } = element
+                }
               ) do
             unquote(Macro.escape(metadata))
           end
         end)
 
         def element_definition(_mapper, _elem), do: nil
+
+        def attribute_definitions(
+              mapper,
+              %Element{
+                attributes: attributes
+              }
+            ) do
+          attributes
+          |> Map.intersect(
+            unquote(Macro.escape(Module.get_attribute(@for, :xml_mapped_sax_attribute_metadata)))
+          )
+          |> Map.values()
+        end
 
         def cast_characters(
               mapper,
@@ -172,10 +192,13 @@ defmodule Saxaboom.Mapper do
               mapper,
               element
             ) do
-          definition = element_definition(mapper, element)
-          extracted = extract_value(element, definition)
-          cast = cast_value(extracted, definition)
-          update_field(mapper, definition, cast)
+          [element_definition(mapper, element)]
+          |> Enum.concat(attribute_definitions(mapper, element))
+          |> Enum.reduce(mapper, fn definition, acc ->
+            extracted = extract_value(element, definition)
+            cast = cast_value(extracted, definition)
+            update_field(acc, definition, cast)
+          end)
         end
 
         def cast_nested(
@@ -203,6 +226,9 @@ defmodule Saxaboom.Mapper do
         defp update_field(mapper, definition, nil), do: mapper
 
         defp update_field(mapper, %{kind: :element, field_name: field_name}, value),
+          do: %{mapper | field_name => value}
+
+        defp update_field(mapper, %{kind: :attribute, field_name: field_name}, value),
           do: %{mapper | field_name => value}
 
         defp update_field(mapper, %{kind: :elements, field_name: field_name}, value) do
@@ -260,6 +286,30 @@ defmodule Saxaboom.Mapper do
         )
 
       Module.put_attribute(__MODULE__, :xml_sax_element_metadata, metadata)
+    end
+  end
+
+  @doc """
+  Defines a structure field that can match against an attribute in the given document. Note that the element it extracts from is
+  unspecified, it will extract from any element that has the given attribute.
+
+  Arguments:
+    - `name` is the name of the tag to match against, case sensitive
+
+  Options:
+    - `:as` provides the name to be used on the struct when parsing, defaults to the name of the tag
+    - `:cast` is a symbol or a user-defined function to transform the extracted `:value`, see `Saxaboom.Utils.Caster` for more details.
+  """
+  defmacro attribute(name, opts \\ []) do
+    quote do
+      metadata =
+        Saxaboom.FieldMetadata.from(
+          unquote(name),
+          unquote(opts) |> Keyword.put(:value, unquote(name)),
+          :attribute
+        )
+
+      Module.put_attribute(__MODULE__, :xml_sax_attribute_metadata, metadata)
     end
   end
 end

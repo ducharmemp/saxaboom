@@ -48,7 +48,26 @@ defmodule SaxaboomTest.MapperTest do
     {%Saxaboom.Element{name: "filtered_nested_item", attributes: %{"kind" => "text"}}, "",
      %Support.Nested{id: "filtered nested item"}},
     {%Saxaboom.Element{name: "filtered_nested_item"}, "",
-     %Support.Nested{id: "wrong filtered nested item"}}
+     %Support.Nested{id: "wrong filtered nested item"}},
+    {%Saxaboom.Element{name: "does_not_matter", attributes: %{"test_attribute" => "attribute"}},
+     "nope"},
+    {%Saxaboom.Element{
+       name: "does_not_matter",
+       attributes: %{"test_attribute_rename" => "attribute rename"}
+     }, "nope"},
+    {%Saxaboom.Element{
+       name: "does_not_matter",
+       attributes: %{"cast_attribute" => "attribute cast"}
+     }, "nope"},
+    {%Saxaboom.Element{
+       name: "does_not_matter",
+       attributes: %{
+         "same_element_1" => "one",
+         "same_element_2" => "two",
+         "same_element_3" => "three",
+         "same_element_4" => "four"
+       }
+     }, "nope"}
   ]
 
   @expected %Support.TestHandler{
@@ -80,7 +99,14 @@ defmodule SaxaboomTest.MapperTest do
     shouldnotbeset: nil,
     shouldnotbeset_list: [],
     user_cast: "foobar test",
-    user_casts: ["foobar test"]
+    user_casts: ["foobar test"],
+    test_attribute: "attribute",
+    renamed_attribute: "attribute rename",
+    cast_attribute: "whatever attribute cast",
+    same_element_1: "one",
+    same_element_2: "two",
+    same_element_3: "three",
+    same_element_rename: "four"
   }
 
   defp reduction({element, _, nested}, handler) do
