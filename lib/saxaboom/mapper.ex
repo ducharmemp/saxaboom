@@ -297,7 +297,7 @@ defmodule Saxaboom.Mapper do
   only allow for the extraction of a single attribute from a node.
 
   Arguments:
-    - `name` is the name of the tag to match against, case sensitive
+    - `name` is the name of the attribute to match against, case sensitive
 
   Options:
     - `:as` provides the name to be used on the struct when parsing, defaults to the name of the tag
