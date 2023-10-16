@@ -42,6 +42,12 @@ of it as xpath selectors but with the ability to work on potentially infinite st
 works with a few elements at a time relative to the rest of the document. If you're familiar with https://github.com/pauldix/sax-machine
 then this library should more or less look exactly the same with some minor tweaks.
 
+## Quickstart
+
+Run the example below or view the docs of the `Saxaboom.Mapper` module.
+
+See [element](https://hexdocs.pm/saxaboom/Saxaboom.Mapper.html#element/2), [elements](https://hexdocs.pm/saxaboom/Saxaboom.Mapper.html#elements/2), and [attribute](https://hexdocs.pm/saxaboom/Saxaboom.Mapper.html#attribute/2) for details on arguments when defining mappers.
+
 ## Example
 You can run the code for yourself in `examples/bookstore` via `mix run -e "Bookstore.list_books('books.xml')"`
 
@@ -116,8 +122,6 @@ library, a good place to start would be to modify the `Book` structure to remove
 },
 ```
 
-## Mapping and definitions
-See [element](https://hexdocs.pm/saxaboom/Saxaboom.Mapper.html#element/2) and [elements](https://hexdocs.pm/saxaboom/Saxaboom.Mapper.html#elements/2) for details on arguments.
 
 ## Caveats and Security
 
@@ -140,6 +144,19 @@ Saxaboom maintains a few stacks to maintain state while walking down the tree, a
   - This is why we could extract the `id` from the `book` tag within the `Book` struct in the example above
 - The default behavior of both the `element` and `elements` types is to extract the characters present between the opening and closing tags if a `value` definition is not present
 - The default behavior is to leave the value extracted from a tag as-is unless otherwise specified by a `cast` function.
+
+The following table describes the equivalent XPath selector for possible mapper configurations.
+
+| Pattern                                  | XPath Equivalent                       |
+| ---------------------------------------- | -------------------------------------- |
+| `element :thing`                         | `//thing[last()]`                      |
+| `element :thing, with: [some: "attr"]`   | `//thing[@some='attr'][last()]`        |
+| `elements :thing`                        | `//thing`                              |
+| `elements :thing, with: [some: "attr"]`  | `//thing[@some='attr']`                |
+| `attribute :some`                        | `//*[@some][last()]/@some`             |
+
+*Note*: This does not include the specification of _what_ is extracted from the document, since the declaration of
+the extraction can be fairly complicated
 
 
 ## Benchmarks
