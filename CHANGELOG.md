@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2023-10-15
+
+- [#4](https://github.com/ducharmemp/saxaboom/pull/4) Documentation improvements
+
 ## [0.2.0] - 2023-10-15
 
 - [#3](https://github.com/ducharmemp/saxaboom/pull/3) Addition of the `attribute/2` directive
@@ -29,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release
 
 
+[0.2.1]: https://github.com/ducharmemp/saxaboom/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/ducharmemp/saxaboom/compare/v0.1.3...v0.2.0
 [0.1.3]: https://github.com/ducharmemp/saxaboom/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/ducharmemp/saxaboom/compare/v0.1.1...v0.1.2

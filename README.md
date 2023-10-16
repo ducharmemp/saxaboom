@@ -11,7 +11,7 @@ Add `saxaboom` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:saxaboom, "0.2.0"}
+    {:saxaboom, "0.2.1"}
   ]
 end
 ```
@@ -29,7 +29,7 @@ If using Saxy, for example, your `mix.exs` would look something like:
 ```elixir
 def deps do
   [
-    {:saxaboom, "0.2.0"}
+    {:saxaboom, "0.2.1"}
     {:saxy, "~> ..."}
   ]
 end
