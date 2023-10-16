@@ -22,7 +22,7 @@ defmodule Saxaboom.Mapper do
         use Saxaboom.Mapper
 
         document do
-          element :book, as: :id, value: :id
+          attribute :id
           element :author
           element :title
           element :genre
@@ -292,6 +292,9 @@ defmodule Saxaboom.Mapper do
   @doc """
   Defines a structure field that can match against an attribute in the given document. Note that the element it extracts from is
   unspecified, it will extract from any element that has the given attribute.
+
+  This macro is helpful to extract multiple attributes from a single node, while the `element/2` and `elements/2` macros
+  only allow for the extraction of a single attribute from a node.
 
   Arguments:
     - `name` is the name of the tag to match against, case sensitive
