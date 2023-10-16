@@ -2,6 +2,11 @@
 
 set -eou pipefail
 
+if [[ $(git branch --show-current) != "main" ]]; then
+    echo "Wrong branch, must be on main"
+    exit 1
+fi
+
 # Smoke tests
 mix format --check-formatted
 mix credo
